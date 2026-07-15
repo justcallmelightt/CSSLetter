@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="마음을 고르고, 편지지를 만들고, 링크로 전하는 온라인 편지 스튜디오 CSSLetter" />
+  <meta name="theme-color" content="#f5f5f7" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="no-referrer" />
+  <meta property="og:title" content="CSSLetter — 마음을 디자인하는 편지" />
+  <meta property="og:description" content="나만의 편지지에 마음을 쓰고, 읽기 링크로 전해보세요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./assets/og-v4.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="./style.css" />
+  <title>CSSLetter — 마음을 디자인하는 편지</title>
+</head>
+<body>
+  <div class="app" id="editorApp">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="CSSLetter 홈">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span class="brand-name">CSSLetter</span>
+        <span class="brand-tag">letter studio</span>
+      </a>
+      <div class="progress" aria-label="편지 작성 단계">
+        <span class="is-active"><b>1</b>편지 쓰기</span><i></i>
+        <span><b>2</b>링크 만들기</span><i></i>
+        <span><b>3</b>마음 전하기</span>
+      </div>
+      <button class="header-action" id="createLinkTop" type="button">
+        <i data-lucide="send" aria-hidden="true"></i><span>읽기 링크 만들기</span>
+      </button>
+    </header>
+
+    <main class="studio">
+      <aside class="control-panel" aria-label="편지 설정">
+        <div class="panel-heading">
+          <p class="eyebrow">LETTER PAPER</p>
+          <h1>어떤 마음으로<br />전하고 싶나요?</h1>
+          <p>편지지를 고르고, 나다운 분위기로 다듬어보세요.</p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="편지지 설정 방식">
+          <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="templates">편지지 고르기</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="custom">직접 스타일링</button>
+        </div>
+
+        <section class="tab-panel is-active" id="templatesPanel" data-panel="templates">
+          <div class="template-list" role="radiogroup" aria-label="편지지 선택">
+            <button class="paper-option is-selected" type="button" data-template="cream" aria-pressed="true">
+              <span class="paper-thumb cream-thumb"><i>가</i></span>
+              <span><strong>소프트 크림</strong><small>따뜻하고 담백한 마음</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="blue" aria-pressed="false">
+              <span class="paper-thumb blue-thumb"><i>가</i></span>
+              <span><strong>블루 레터</strong><small>맑고 차분한 진심</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="midnight" aria-pressed="false">
+              <span class="paper-thumb midnight-thumb"><i>가</i></span>
+              <span><strong>미드나잇</strong><small>조용한 밤의 고백</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="dot" aria-pressed="false">
+              <span class="paper-thumb dot-thumb"><i>가</i></span>
+              <span><strong>도트 노트</strong><small>가볍고 솔직한 안부</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="customPanel" data-panel="custom">
+          <div class="custom-grid">
+            <label class="color-field">종이 색상<span><input id="paperColor" type="color" value="#fffdf7" /><b id="paperColorValue">#FFFDF7</b></span></label>
+            <label class="color-field">글자 색상<span><input id="inkColor" type="color" value="#282620" /><b id="inkColorValue">#282620</b></span></label>
+            <label class="color-field">포인트 색상<span><input id="accentColor" type="color" value="#111111" /><b id="accentColorValue">#111111</b></span></label>
+            <label class="select-field">글자 무게<select id="fontSelect"><option value="batang">Pretendard Regular</option><option value="myeongjo">Pretendard Light</option><option value="sans">Pretendard Bold</option></select></label>
+            <label class="range-field">글자 크기 <b id="fontSizeValue">18</b><input id="fontSize" type="range" min="15" max="23" value="18" /></label>
+            <label class="range-field">줄 간격 <b id="lineHeightValue">1.9</b><input id="lineHeight" type="range" min="1.5" max="2.3" value="1.9" step="0.1" /></label>
+          </div>
+        </section>
+
+        <div class="draft-note"><i data-lucide="hard-drive" aria-hidden="true"></i><span>작성 내용은 서버가 아닌 이 브라우저에만 저장돼요.</span></div>
+      </aside>
+
+      <section class="workbench" aria-label="편지 작성 영역">
+        <div class="workbench-bar">
+          <div><span class="status-dot"></span><span>나의 편지</span><small id="saveStatus">저장됨</small></div>
+          <div class="workbench-actions">
+            <button id="clearLetter" type="button" title="내용 지우기" aria-label="내용 지우기"><i data-lucide="trash-2"></i></button>
+            <button id="togglePreview" type="button"><i data-lucide="eye"></i><span>미리보기</span></button>
+          </div>
+        </div>
+
+        <div class="letter-stage">
+          <article class="letter-paper theme-cream" id="letterPaper">
+            <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+            <div class="letter-fields">
+              <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
+              <input class="title-field" id="letterTitle" maxlength="80" placeholder="편지의 제목을 적어주세요" autocomplete="off" />
+              <textarea class="body-field" id="letterBody" maxlength="5000" placeholder="천천히, 전하고 싶었던 마음을 적어보세요.&#10;&#10;사소한 안부도, 오래 품었던 이야기라도 좋아요."></textarea>
+              <label class="sender-field"><span>From.</span><input id="sender" maxlength="40" placeholder="보내는 사람" autocomplete="off" /></label>
+            </div>
+            <footer class="paper-footer"><span id="letterDate"></span><span>made with CSSLetter</span></footer>
+          </article>
+        </div>
+
+        <div class="mobile-create-wrap">
+          <button class="mobile-create" id="createLinkMobile" type="button"><i data-lucide="send"></i> 읽기 링크 만들기</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <section class="reader" id="readerApp" hidden>
+    <header class="reader-header"><a class="brand" href="./"><span class="brand-mark">C</span><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
+    <div class="reader-intro" id="readerIntro">
+      <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
+      <p>TO. <strong id="introRecipient">당신</strong></p>
+      <h1>마음을 담은<br />편지가 도착했어요.</h1>
+      <button id="openLetter" type="button"><i data-lucide="mail-open"></i> 편지 열어보기</button>
+      <small>FROM. <span id="introSender">누군가</span></small>
+    </div>
+    <div class="reader-letter-wrap" id="readerLetterWrap" hidden>
+      <article class="letter-paper reader-paper" id="readerPaper">
+        <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+        <div class="reader-content">
+          <p class="reader-to">To. <strong id="readRecipient"></strong></p>
+          <h2 id="readTitle"></h2>
+          <div class="reader-body" id="readBody"></div>
+          <p class="reader-from">From. <strong id="readSender"></strong></p>
+        </div>
+        <footer class="paper-footer"><span id="readDate"></span><span>made with CSSLetter</span></footer>
+      </article>
+      <a class="write-own" href="./"><i data-lucide="pen-line"></i> 나도 편지 쓰기</a>
+    </div>
+  </section>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card preview-card" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
+      <p class="eyebrow">READER PREVIEW</p><h2 id="previewTitle">받는 사람은 이렇게 읽어요.</h2>
+      <div class="mini-letter" id="miniLetter"><p id="miniTo"></p><h3 id="miniTitle"></h3><p id="miniBody"></p><strong id="miniFrom"></strong></div>
+    </section>
+  </div>
+
+  <div class="modal" id="linkModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card link-card" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
+      <span class="success-icon"><i data-lucide="link-2"></i></span>
+      <p class="eyebrow">YOUR LETTER IS READY</p>
+      <h2 id="linkTitle">읽기 링크가<br />만들어졌어요.</h2>
+      <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
+      <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
+      <div class="link-actions"><button id="openSharedLetter" class="primary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
+      <small><i data-lucide="shield-alert"></i> 편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</small>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

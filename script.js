@@ -6,6 +6,8 @@ const templates = {
   blue: { paper: "#e5f0f3", ink: "#263e4b", accent: "#111111", font: "myeongjo", size: 18, leading: 1.9 },
   midnight: { paper: "#19222d", ink: "#f0e8d7", accent: "#ffffff", font: "batang", size: 18, leading: 2 },
   dot: { paper: "#f5dfd4", ink: "#4d352f", accent: "#111111", font: "sans", size: 17, leading: 1.85 },
+  flower: { paper: "#fffafc", ink: "#46373e", accent: "#b74870", font: "batang", size: 18, leading: 1.9 },
+  cute: { paper: "#fff8fd", ink: "#493b55", accent: "#7256b8", font: "sans", size: 17, leading: 1.85 },
 };
 
 const fontMap = {
@@ -109,7 +111,7 @@ function saveDraft() {
 }
 
 function setPaperStyle(element, style, template = "custom") {
-  element.classList.remove("theme-cream", "theme-blue", "theme-midnight", "theme-dot");
+  element.classList.remove("theme-cream", "theme-blue", "theme-midnight", "theme-dot", "theme-flower", "theme-cute");
   if (template in templates) element.classList.add(`theme-${template}`);
   element.style.setProperty("--letter-paper", style.paper);
   element.style.setProperty("--letter-ink", style.ink);
@@ -234,8 +236,12 @@ function renderPreview() {
 }
 
 function renderReader(letter) {
+  const reader = $("#readerApp");
+  const readerTemplate = letter.template in templates ? letter.template : "cream";
   $("#editorApp").hidden = true;
-  $("#readerApp").hidden = false;
+  [...reader.classList].filter((name) => name.startsWith("reader-theme-")).forEach((name) => reader.classList.remove(name));
+  reader.classList.add(`reader-theme-${readerTemplate}`);
+  reader.hidden = false;
   $("#introRecipient").textContent = letter.recipient || "당신";
   $("#introSender").textContent = letter.sender || "누군가";
   $("#readRecipient").textContent = letter.recipient || "당신";
@@ -243,7 +249,7 @@ function renderReader(letter) {
   $("#readBody").textContent = letter.body || "";
   $("#readSender").textContent = letter.sender || "누군가";
   $("#readDate").textContent = letter.date || "";
-  setPaperStyle($("#readerPaper"), letter.style || templates.cream, letter.template || "cream");
+  setPaperStyle($("#readerPaper"), letter.style || templates.cream, readerTemplate);
   document.title = `${letter.recipient || "당신"}에게 도착한 편지 — CSSLetter`;
 }
 

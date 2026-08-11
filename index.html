@@ -2,549 +2,196 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="preload" href="./assets/fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
-  <title>Tile</title>
-  <link rel="icon" href="favicon-16x16.png" sizes="16x16" />
-  <link rel="icon" href="favicon-32x32.png" sizes="32x32" />
-  <link rel="icon" href="favicon-96x96.png" sizes="96x96" />
-  <link rel="apple-touch-icon" href="/favicon-96x96.png">
-  <link rel="stylesheet" href="./style.css?v=20260716-original-spotlight-ratio" />
-  <link rel="stylesheet" href="./ui-polish.css?v=20260725-uiux-refresh" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="마음을 고르고, 편지지를 만들고, 링크로 전하는 온라인 편지 스튜디오 CSSLetter" />
+  <meta name="theme-color" content="#f5f5f7" />
+  <meta name="referrer" content="no-referrer" />
+  <meta property="og:title" content="CSSLetter — 마음을 디자인하는 편지" />
+  <meta property="og:description" content="나만의 편지지에 마음을 쓰고, 읽기 링크로 전해보세요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./assets/og-v4.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="./style.css" />
+  <title>CSSLetter — 마음을 디자인하는 편지</title>
 </head>
-<body class="welcome-active">
-  <a class="skip-link" href="#timetable">시간표로 바로가기</a>
-  <div class="startup-spotlight" aria-hidden="true"></div>
-  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-G0FCVJ0M52"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<body>
+  <div class="app" id="editorApp">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="CSSLetter 홈">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span class="brand-name">CSSLetter</span>
+        <span class="brand-tag">letter studio</span>
+      </a>
+      <div class="progress" aria-label="편지 작성 단계">
+        <span class="is-active"><b>1</b>편지 쓰기</span><i></i>
+        <span><b>2</b>링크 만들기</span><i></i>
+        <span><b>3</b>마음 전하기</span>
+      </div>
+      <button class="header-action" id="createLinkTop" type="button">
+        <i data-lucide="send" aria-hidden="true"></i><span>읽기 링크 만들기</span>
+      </button>
+    </header>
 
-  gtag('config', 'G-G0FCVJ0M52');
-</script>
-  <!-- Tile 2.0: large update preparation / future custom timetable platform -->
-  <div id="setupModal" class="setup-modal hidden" aria-hidden="true">
-    <div class="setup-card" role="dialog" aria-modal="true" aria-labelledby="setupTitle" aria-describedby="setupDescription">
-      <div class="setup-header">
-        <div>
-          <span class="dialog-eyebrow">NEIS 연결</span>
-          <h2 id="setupTitle">학교 설정</h2>
-          <p class="setup-subtitle" id="setupDescription">학교와 학급을 확인한 뒤 변경될 시간표를 미리 살펴보고 적용합니다.</p>
+    <main class="studio">
+      <aside class="control-panel" aria-label="편지 설정">
+        <div class="panel-heading">
+          <p class="eyebrow">LETTER PAPER</p>
+          <h1>어떤 마음으로<br />전하고 싶나요?</h1>
+          <p>편지지를 고르고, 나다운 분위기로 다듬어보세요.</p>
         </div>
-        <button id="closeSchoolSettings" class="dialog-close" type="button" aria-label="닫기">&times;</button>
-      </div>
-      <div class="setup-progress" aria-label="학교 연결 단계">
-        <span class="is-active"><b>1</b> 학교</span>
-        <span><b>2</b> 학급</span>
-        <span><b>3</b> 확인</span>
-      </div>
-      <label class="setup-field setup-field-wide" for="schoolInput">
-        <span>학교</span>
-        <input
-            id="schoolInput"
-            placeholder="학교 이름 입력"
-            autocomplete="off"
-        >
-      </label>
-      <div id="schoolResults"></div>
-      <div id="selectedSchoolInfo" class="selected-school-info" aria-live="polite"></div>
-      <div class="setup-row">
-        <label class="setup-field" for="gradeInput">
-          <span>학년</span>
-          <input
-              id="gradeInput"
-              placeholder="학년"
-              type="number"
-              min="1"
-          >
-        </label>
-        <label class="setup-field" for="classInput">
-          <span>반</span>
-          <input
-              id="classInput"
-              placeholder="반"
-              type="number"
-              min="1"
-          >
-        </label>
-      </div>
-      <div id="schoolSyncPreview" class="sync-preview" aria-live="polite" hidden>
-        <div class="sync-preview-heading">
-          <div>
-            <span class="dialog-eyebrow">적용 전 확인</span>
-            <strong id="schoolSyncPreviewTitle">시간표를 확인했습니다</strong>
+
+        <div class="tabs" role="tablist" aria-label="편지지 설정 방식">
+          <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="templates">편지지 고르기</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="custom">직접 스타일링</button>
+        </div>
+
+        <section class="tab-panel is-active" id="templatesPanel" data-panel="templates">
+          <div class="template-list" role="radiogroup" aria-label="편지지 선택">
+            <button class="paper-option is-selected" type="button" data-template="cream" aria-pressed="true">
+              <span class="paper-thumb cream-thumb"><i>가</i></span>
+              <span><strong>소프트 크림</strong><small>따뜻하고 담백한 마음</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="blue" aria-pressed="false">
+              <span class="paper-thumb blue-thumb"><i>가</i></span>
+              <span><strong>블루 레터</strong><small>맑고 차분한 진심</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="midnight" aria-pressed="false">
+              <span class="paper-thumb midnight-thumb"><i>가</i></span>
+              <span><strong>미드나잇</strong><small>조용한 밤의 고백</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="dot" aria-pressed="false">
+              <span class="paper-thumb dot-thumb"><i>가</i></span>
+              <span><strong>도트 노트</strong><small>가볍고 솔직한 안부</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="flower" aria-pressed="false">
+              <span class="paper-thumb flower-thumb" aria-hidden="true"><i>✿</i></span>
+              <span><strong>블룸 가든</strong><small>꽃잎처럼 포근한 마음</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
+            <button class="paper-option" type="button" data-template="cute" aria-pressed="false">
+              <span class="paper-thumb cute-thumb" aria-hidden="true"><i>♡</i></span>
+              <span><strong>슈가 팝</strong><small>몽글몽글 귀여운 진심</small></span>
+              <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
+            </button>
           </div>
-          <span id="schoolSyncPreviewBadge" class="source-badge source-neis">NEIS</span>
-        </div>
-        <div class="sync-preview-grid">
-          <div><span>시간표</span><strong id="schoolSyncPreviewCount">0개</strong></div>
-          <div><span>급식</span><strong id="schoolSyncPreviewMeals">0개</strong></div>
-          <div><span>학과</span><strong id="schoolSyncPreviewDepartment">없음</strong></div>
-        </div>
-        <p id="schoolSyncPreviewDescription">적용하면 현재 학교 설정과 시간표가 새 정보로 바뀝니다. 이전 상태는 되돌릴 수 있습니다.</p>
-      </div>
-      <p id="schoolFormMessage" class="form-message" aria-live="polite"></p>
-      <div class="setup-actions">
-        <button id="saveSchool" class="theme-toggle primary-action" type="button">
-          <span class="button-label">변경사항 확인</span>
-          <span class="button-progress" aria-hidden="true"></span>
-        </button>
-      </div>
-    </div>
-  </div>
-  <div id="appSettingsModal" class="setup-modal hidden" aria-hidden="true">
-    <div class="setup-card settings-card" role="dialog" aria-modal="true" aria-labelledby="appSettingsTitle">
-      <div class="setup-header">
-        <div>
-          <span class="dialog-eyebrow">개인화</span>
-          <h2 id="appSettingsTitle">Tile 설정</h2>
-          <p class="setup-subtitle">급식 알림과 이 기기에 저장된 Tile 데이터를 한곳에서 관리합니다.</p>
-        </div>
-        <button id="closeAppSettings" class="dialog-close" type="button" aria-label="닫기">&times;</button>
-      </div>
-      <nav class="settings-nav" aria-label="Tile 설정 항목">
-        <button class="is-active" type="button" data-settings-target="mealSettings">급식</button>
-        <button type="button" data-settings-target="dataSettings">데이터</button>
-      </nav>
-      <section class="settings-section is-active" id="mealSettings" aria-labelledby="allergySettingsTitle">
-        <div class="settings-section-header">
-          <h3 id="allergySettingsTitle">급식 알레르기</h3>
-          <p>피하고 싶은 재료나 알레르기 번호를 등록하면 급식 메뉴에서 바로 알려드립니다.</p>
-        </div>
-        <label class="setup-field" for="allergyInput">
-          <span>알레르기 / 피하고 싶은 재료</span>
-          <textarea
-              id="allergyInput"
-              placeholder="예) 새우, 우유, 땅콩 또는 9, 2, 4"
-          ></textarea>
-        </label>
-        <p class="settings-help">쉼표로 구분해서 입력하면 급식 메뉴에서 해당 항목을 찾아 경고를 표시합니다.</p>
-      </section>
-      <section class="settings-section" id="dataSettings" aria-labelledby="dataSettingsTitle" hidden>
-        <div class="settings-section-header">
-          <h3 id="dataSettingsTitle">내 데이터</h3>
-          <p>이 브라우저에 저장된 학교, 시간표 수정, 메모와 개인화 설정을 관리합니다.</p>
-        </div>
-        <div class="settings-data-summary">
-          <div>
-            <span>저장 위치</span>
-            <strong>이 기기의 브라우저</strong>
+          <section class="saved-papers" id="savedPapersSection" hidden aria-labelledby="savedPapersTitle">
+            <div class="saved-papers-heading">
+              <div><span>MY PAPERS</span><h2 id="savedPapersTitle">나의 편지지</h2></div>
+              <b id="savedPapersCount">0</b>
+            </div>
+            <div class="saved-paper-list" id="savedPaperList" role="radiogroup" aria-label="저장한 편지지"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="customPanel" data-panel="custom">
+          <div class="custom-grid">
+            <label class="color-field">종이 색상<span><input id="paperColor" type="color" value="#fffdf7" /><b id="paperColorValue">#FFFDF7</b></span></label>
+            <label class="color-field">글자 색상<span><input id="inkColor" type="color" value="#282620" /><b id="inkColorValue">#282620</b></span></label>
+            <label class="color-field">포인트 색상<span><input id="accentColor" type="color" value="#111111" /><b id="accentColorValue">#111111</b></span></label>
+            <label class="select-field">글자 무게<select id="fontSelect"><option value="batang">Pretendard Regular</option><option value="myeongjo">Pretendard Light</option><option value="sans">Pretendard Bold</option></select></label>
+            <label class="range-field">글자 크기 <b id="fontSizeValue">18</b><input id="fontSize" type="range" min="15" max="23" value="18" /></label>
+            <label class="range-field">줄 간격 <b id="lineHeightValue">1.9</b><input id="lineHeight" type="range" min="1.5" max="2.3" value="1.9" step="0.1" /></label>
           </div>
-          <div>
-            <span>마지막 NEIS 연결</span>
-            <strong id="lastSyncValue">기록 없음</strong>
+          <div class="save-paper-card">
+            <div class="save-paper-copy"><span>MY PAPER</span><strong>지금 스타일을 편지지로 저장</strong><small>이 브라우저의 ‘나의 편지지’에 보관돼요.</small></div>
+            <label for="customPaperName">편지지 이름</label>
+            <div class="save-paper-form">
+              <input id="customPaperName" maxlength="24" placeholder="예: 새벽의 파란 편지" autocomplete="off" />
+              <button id="saveCustomPaper" type="button"><i data-lucide="bookmark-plus" aria-hidden="true"></i><span>저장</span></button>
+            </div>
+          </div>
+        </section>
+
+        <div class="draft-note"><i data-lucide="hard-drive" aria-hidden="true"></i><span>작성 내용은 서버가 아닌 이 브라우저에만 저장돼요.</span></div>
+      </aside>
+
+      <section class="workbench" aria-label="편지 작성 영역">
+        <div class="workbench-bar">
+          <div><span class="status-dot"></span><span>나의 편지</span><small id="saveStatus">저장됨</small></div>
+          <div class="workbench-actions">
+            <button id="clearLetter" type="button" title="내용 지우기" aria-label="내용 지우기"><i data-lucide="trash-2"></i></button>
+            <button id="togglePreview" type="button"><i data-lucide="eye"></i><span>미리보기</span></button>
           </div>
         </div>
-        <div class="settings-secondary-actions">
-          <button id="exportTileData" class="secondary-action" type="button">데이터 내보내기</button>
-          <button id="undoTileChange" class="secondary-action" type="button">마지막 변경 되돌리기</button>
+
+        <div class="letter-stage">
+          <article class="letter-paper theme-cream" id="letterPaper">
+            <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+            <div class="letter-fields">
+              <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
+              <input class="title-field" id="letterTitle" maxlength="80" placeholder="편지의 제목을 적어주세요" autocomplete="off" />
+              <textarea class="body-field" id="letterBody" maxlength="5000" placeholder="천천히, 전하고 싶었던 마음을 적어보세요.&#10;&#10;사소한 안부도, 오래 품었던 이야기라도 좋아요."></textarea>
+              <label class="sender-field"><span>From.</span><input id="sender" maxlength="40" placeholder="보내는 사람" autocomplete="off" /></label>
+            </div>
+            <footer class="paper-footer"><span id="letterDate"></span><span>made with CSSLetter</span></footer>
+          </article>
+        </div>
+
+        <div class="mobile-create-wrap">
+          <button class="mobile-create" id="createLinkMobile" type="button"><i data-lucide="send"></i> 읽기 링크 만들기</button>
         </div>
       </section>
-      <div class="setup-actions">
-        <button id="resetAppSettings" class="theme-toggle secondary-action" type="button">현재 항목 초기화</button>
-        <button id="saveAppSettings" class="theme-toggle save-action primary-action" type="button">설정 저장</button>
-      </div>
-    </div>
-  </div>
-  <div class="iphone-safe-zone" aria-hidden="true"></div>
-  <div class="floating-topbar" id="floatingTopbar" aria-hidden="true">
-    <div class="status-card" id="floatingStatusCard">
-      <div class="status-item">
-        <span class="status-label">현재 시간</span>
-        <span class="status-value" id="topbarTime">불러오는 중...</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label">현재 진행</span>
-        <span class="status-value" id="topbarPeriod">확인 중...</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label" id="topbarRemainingLabel">교시 남은 시간</span>
-        <span class="status-value" id="topbarRemaining">계산 중...</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label">일과 남은 시간</span>
-        <span class="status-value" id="topbarDayRemaining">계산 중...</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label">현재 교실</span>
-        <span class="status-value" id="topbarRoom">확인 중...</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label">NEIS</span>
-        <span class="status-value" id="topbarNeis">대기 중</span>
-      </div>
-    </div>
+    </main>
   </div>
 
-  <main class="container" id="mainContent">
-    <div class="hero">
-      <div class="hero-copy">
-        <h1 id="tileTitle" class="welcome-title is-welcome-rolling" aria-label="Tile">
-          <span class="welcome-title-char" aria-hidden="true"><span class="welcome-title-char-inner"><span>&nbsp;</span><span>T</span></span></span>
-          <span class="welcome-title-char" aria-hidden="true"><span class="welcome-title-char-inner"><span>&nbsp;</span><span>i</span></span></span>
-          <span class="welcome-title-char" aria-hidden="true"><span class="welcome-title-char-inner"><span>&nbsp;</span><span>l</span></span></span>
-          <span class="welcome-title-char" aria-hidden="true"><span class="welcome-title-char-inner"><span>&nbsp;</span><span>e</span></span></span>
-        </h1>
-        <p class="subtitle" id="schoolSubtitle">미림마이스터고등학교 | 1학년 2반</p>
-      </div>
-      <div class="controls">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">다크 모드</button>
-        <button class="theme-toggle today-toggle" id="todayOnlyToggle" type="button" aria-pressed="false">오늘 일과만 보기</button>
-        <div class="tool-menu" id="toolMenu">
-          <button class="theme-toggle" id="toolMenuToggle" type="button" aria-expanded="false" aria-controls="toolMenuPanel">도구</button>
-          <div class="tool-menu-panel" id="toolMenuPanel" aria-hidden="true">
-            <span class="tool-menu-label">연결</span>
-            <button id="schoolSettingsToggle" type="button"><span>학교 설정</span><small>학교와 학급 변경</small></button>
-            <button id="mealToggle" type="button"><span>오늘 급식</span><small>조식·중식·석식</small></button>
-            <span class="tool-menu-label">관리</span>
-            <button id="appSettingsToggle" type="button"><span>Tile 설정</span><small>개인화와 데이터</small></button>
-            <button id="memoToggle" type="button"><span>메모</span><small>과제와 준비물 기록</small></button>
-            <button id="customToggle" class="custom-toggle" type="button"><span>JSON 편집기</span><small>고급 시간표 설정</small></button>
-          </div>
-        </div>
-      </div>
+  <section class="reader" id="readerApp" hidden>
+    <div class="reader-petals" aria-hidden="true">
+      <span>✿</span><span>❀</span><span>✿</span><span>❀</span><span>✿</span><span>❀</span>
+      <span>✿</span><span>❀</span><span>✿</span><span>❀</span><span>✿</span><span>❀</span>
     </div>
-    <div class="top-grid">
-      <div class="status-card">
-        <div class="status-item">
-          <span class="status-label">현재 시간</span>
-          <span class="status-value" id="currentTime">불러오는 중...</span>
-        </div>
-        <div class="status-item">
-          <span class="status-label">현재 진행</span>
-          <span class="status-value" id="currentPeriod">확인 중...</span>
-        </div>
-        <div class="status-item">
-          <span class="status-label" id="remainingTimeLabel">교시 남은 시간</span>
-          <span class="status-value" id="remainingTime">계산 중...</span>
-        </div>
-        <div class="status-item">
-          <span class="status-label">일과 남은 시간</span>
-          <span class="status-value" id="dayRemainingTime">계산 중...</span>
-        </div>
-        <div class="status-item">
-          <span class="status-label">현재 교실</span>
-          <span class="status-value" id="currentRoom">확인 중...</span>
-        </div>
-        <div class="status-item">
-          <span class="status-label">NEIS</span>
-          <span class="status-value" id="neisStatus">대기 중</span>
-        </div>
-      </div>
+    <header class="reader-header"><a class="brand" href="./"><span class="brand-mark">C</span><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
+    <div class="reader-intro" id="readerIntro">
+      <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
+      <p>TO. <strong id="introRecipient">당신</strong></p>
+      <h1>마음을 담은<br />편지가 도착했어요.</h1>
+      <button id="openLetter" type="button"><i data-lucide="mail-open"></i> 편지 열어보기</button>
+      <small>FROM. <span id="introSender">누군가</span></small>
     </div>
-
-    <section class="custom-panel" id="customPanel" aria-hidden="true">
-      <div class="custom-panel-header">
-        <div>
-          <h2>JSON으로 수정</h2>
-          <p>JSON으로 시간표, 교실, 선생님 정보를 수정할 수 있습니다.</p>
+    <div class="reader-letter-wrap" id="readerLetterWrap" hidden>
+      <article class="letter-paper reader-paper" id="readerPaper">
+        <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+        <div class="reader-content">
+          <p class="reader-to">To. <strong id="readRecipient"></strong></p>
+          <h2 id="readTitle"></h2>
+          <div class="reader-body" id="readBody"></div>
+          <p class="reader-from">From. <strong id="readSender"></strong></p>
         </div>
-        <button class="custom-close" id="customClose" type="button" aria-label="닫기">&times;</button>
-      </div>
+        <footer class="paper-footer"><span id="readDate"></span><span>made with CSSLetter</span></footer>
+      </article>
+      <a class="write-own" href="./"><i data-lucide="pen-line"></i> 나도 편지 쓰기</a>
+    </div>
+  </section>
 
-      <textarea id="customTimetableInput" spellcheck="false"></textarea>
-
-      <div class="custom-actions">
-        <button class="theme-toggle" id="customLoadExample" type="button">예시 불러오기</button>
-        <button class="theme-toggle" id="customSave" type="button">저장</button>
-        <button class="theme-toggle" id="customReset" type="button">초기화</button>
-      </div>
-
-      <p class="custom-help">
-        저장된 설정은 이 기기의 브라우저에만 저장됩니다. 문제가 생기면 초기화를 눌러 기본 시간표로 돌아갈 수 있습니다.
-      </p>
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card preview-card" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
+      <p class="eyebrow">READER PREVIEW</p><h2 id="previewTitle">받는 사람은 이렇게 읽어요.</h2>
+      <div class="mini-letter" id="miniLetter"><p id="miniTo"></p><h3 id="miniTitle"></h3><p id="miniBody"></p><strong id="miniFrom"></strong></div>
     </section>
-
-    <section class="custom-panel" id="memoPanel" aria-hidden="true">
-      <div class="custom-panel-header">
-        <div>
-          <h2>Tile 메모 / 일정</h2>
-          <p>빠르게 숙제, 일정, 메모를 기록할 수 있습니다.</p>
-        </div>
-        <button class="custom-close" id="memoClose" type="button" aria-label="닫기">&times;</button>
-      </div>
-
-      <textarea
-        id="memoInput"
-        placeholder="예)\n- 수학 수행평가 금요일\n- 프로그래밍 JAVA 기초 과제 제출\n- 동아리 · 멘토링 회의 16:30"
-        spellcheck="false"></textarea>
-
-      <div class="custom-actions">
-        <button class="theme-toggle" id="memoSave" type="button">저장</button>
-        <button class="theme-toggle" id="memoReset" type="button">초기화</button>
-      </div>
-    </section>
-
-    <section class="custom-panel meal-panel" id="mealPanel" aria-hidden="true">
-      <div class="custom-panel-header">
-        <div>
-          <h2>오늘 급식</h2>
-          <p>NEIS에서 불러온 조식, 중식, 석식을 따로 확인할 수 있습니다.</p>
-        </div>
-        <button class="custom-close" id="mealClose" type="button" aria-label="닫기">&times;</button>
-      </div>
-      <div class="meal-list" id="mealList">
-        <div class="meal-card">
-          <span class="meal-type">조식</span>
-          <p id="breakfastMenu">아직 불러온 급식 정보가 없습니다.</p>
-          <div class="meal-warning" id="breakfastWarning"></div>
-        </div>
-        <div class="meal-card">
-          <span class="meal-type">중식</span>
-          <p id="lunchMenu">아직 불러온 급식 정보가 없습니다.</p>
-          <div class="meal-warning" id="lunchWarning"></div>
-        </div>
-        <div class="meal-card">
-          <span class="meal-type">석식</span>
-          <p id="dinnerMenu">아직 불러온 급식 정보가 없습니다.</p>
-          <div class="meal-warning" id="dinnerWarning"></div>
-        </div>
-      </div>
-    </section>
-
-    <div class="table-shell" id="timetable" tabindex="0" aria-label="주간 시간표">
-      <table>
-        <caption class="sr-only">월요일부터 금요일까지의 주간 시간표</caption>
-        <colgroup>
-          <col class="time-col" />
-          <col class="day-col" />
-          <col class="day-col" />
-          <col class="day-col" />
-          <col class="day-col" />
-          <col class="day-col" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>교시</th>
-            <th data-day="1">월</th>
-            <th data-day="2">화</th>
-            <th data-day="3">수</th>
-            <th data-day="4">목</th>
-            <th data-day="5">금</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-period="조회">
-            <th>조회<br /><span class="time">오전 8:10 ~ 오전 8:20</span></th>
-            <td class="homeroom" colspan="5">조회</td>
-          </tr>
-          <tr data-period="1교시">
-            <th>1교시<br /><span class="time">오전 8:20 ~ 오전 9:10</span></th>
-            <td data-subject="자치"><div class="subject"><span class="subject-name">자치</span></div></td>
-            <td data-subject="미디어 컨탠츠 일반"><div class="subject"><span class="subject-name">미디어 컨탠츠 일반</span></div></td>
-            <td data-subject="공통영어"><div class="subject"><span class="subject-name">공통영어</span></div></td>
-            <td data-subject="미디어 컨탠츠 일반"><div class="subject"><span class="subject-name">미디어 컨탠츠 일반</span></div></td>
-            <td data-subject="기술가정"><div class="subject"><span class="subject-name">기술가정</span></div></td>
-          </tr>
-          <tr data-period="2교시">
-            <th>2교시<br /><span class="time">오전 9:20 ~ 오전 10:10</span></th>
-            <td data-subject="프로그래밍 JAVA 기초"><div class="subject"><span class="subject-name">프로그래밍 JAVA 기초</span></div></td>
-            <td data-subject="체육"><div class="subject"><span class="subject-name">체육</span></div></td>
-            <td data-subject="공통국어 (이대형)"><div class="subject"><span class="subject-name">공통국어</span></div></td>
-            <td data-subject="미디어 컨탠츠 일반"><div class="subject"><span class="subject-name">미디어 컨탠츠 일반</span></div></td>
-            <td data-subject="공통수학"><div class="subject"><span class="subject-name">공통수학</span></div></td>
-          </tr>
-          <tr data-period="3교시">
-            <th>3교시<br /><span class="time">오전 10:20 ~ 오전 11:10</span></th>
-            <td data-subject="공통영어"><div class="subject"><span class="subject-name">공통영어</span></div></td>
-            <td data-subject="공통국어"><div class="subject"><span class="subject-name">공통국어</span></div></td>
-            <td data-subject="공통수학"><div class="subject"><span class="subject-name">공통수학</span></div></td>
-            <td data-subject="기술가정"><div class="subject"><span class="subject-name">기술가정</span></div></td>
-            <td data-subject="한국사"><div class="subject"><span class="subject-name">한국사</span></div></td>
-          </tr>
-          <tr data-period="4교시">
-            <th>4교시<br /><span class="time">오전 11:20 ~ 오후 12:10</span></th>
-            <td data-subject="성공적인 직업생활"><div class="subject"><span class="subject-name">성공적인 직업생활</span></div></td>
-            <td data-subject="성공적인 직업생활
-            "><div class="subject"><span class="subject-name">성공적인 직업생활</span></div></td>
-            <td data-subject="한국사"><div class="subject"><span class="subject-name">한국사</span></div></td>
-            <td data-subject="일본어"><div class="subject"><span class="subject-name">일본어</span></div></td>
-            <td data-subject="일본어"><div class="subject"><span class="subject-name">일본어</span></div></td>
-          </tr>
-          <tr data-period="중식">
-            <th>중식<br /><span class="time">오후 12:10 ~ 오후 1:00</span></th>
-            <td class="meal" colspan="5">중식</td>
-          </tr>
-          <tr data-period="5교시">
-            <th>5교시<br /><span class="time">오후 1:00 ~ 오후 1:50</span></th>
-            <td data-subject="한국사"><div class="subject"><span class="subject-name">한국사</span></div></td>
-            <td data-subject="프로그래밍 JAVA 기초"><div class="subject"><span class="subject-name">프로그래밍 JAVA 기초</span></div></td>
-            <td data-subject="일본어"><div class="subject"><span class="subject-name">일본어</span></div></td>
-            <td data-subject="공통국어"><div class="subject"><span class="subject-name">공통국어</span></div></td>
-            <td data-subject="공통영어"><div class="subject"><span class="subject-name">공통영어</span></div></td>
-          </tr>
-          <tr data-period="6교시">
-            <th>6교시<br /><span class="time">오후 2:00 ~ 오후 2:50</span></th>
-            <td data-subject="기술가정"><div class="subject"><span class="subject-name">기술가정</span></div></td>
-            <td data-subject="프로그래밍 JAVA 기초"><div class="subject"><span class="subject-name">프로그래밍 JAVA 기초</span></div></td>
-            <td data-subject="동아리 · 멘토링"><div class="subject"><span class="subject-name">동아리 · 멘토링</span></div></td>
-            <td data-subject="프로그래밍 JAVA 기초"><div class="subject"><span class="subject-name">프로그래밍 JAVA 기초</span></div></td>
-            <td data-subject="체육"><div class="subject"><span class="subject-name">체육</span></div></td>
-          </tr>
-          <tr data-period="7교시">
-            <th>7교시<br /><span class="time">오후 3:00 ~ 오후 3:50</span></th>
-            <td class="empty-cell"></td>
-            <td data-subject="공통수학"><div class="subject"><span class="subject-name">공통수학</span></div></td>
-            <td data-subject="동아리 · 멘토링"><div class="subject"><span class="subject-name">동아리 · 멘토링</span></div></td>
-            <td data-subject="프로그래밍 JAVA 기초"><div class="subject"><span class="subject-name">프로그래밍 JAVA 기초</span></div></td>
-            <td class="empty-cell"></td>
-          </tr>
-          <tr data-period="종례">
-            <th>종례<br /><span class="time">오후 3:50 ~ 오후 4:30</span></th>
-            <td class="homeroom" colspan="5">종례</td>
-          </tr>
-          <tr data-period="방과후 A">
-            <th>방과후 A<br /><span class="time">오후 4:30 ~ 오후 5:20</span></th>
-            <td class="empty-cell"></td>
-            <td data-subject="방과후학교 A"><div class="subject"><span class="subject-name">방과후학교 A</span></div></td>
-            <td class="empty-cell"></td>
-            <td data-subject="방과후학교 A"><div class="subject"><span class="subject-name">방과후학교 A</span></div></td>
-            <td class="empty-cell"></td>
-          </tr>
-          <tr data-period="석식">
-            <th>석식<br /><span class="time">오후 5:20 ~ 오후 6:20</span></th>
-            <td class="meal" colspan="5">석식</td>
-          </tr>
-          <tr data-period="방과후 B">
-            <th>방과후 B<br /><span class="time">오후 6:20 ~ 오후 8:00</span></th>
-            <td class="empty-cell"></td>
-            <td data-subject="방과후학교 B"><div class="subject"><span class="subject-name">방과후학교 B</span></div></td>
-            <td class="empty-cell"></td>
-            <td data-subject="방과후학교 B"><div class="subject"><span class="subject-name">방과후학교 B</span></div></td>
-            <td class="empty-cell"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <section class="support-section" aria-labelledby="supportTitle">
-      <div class="support-section-copy">
-        <h2 id="supportTitle">Tile이 일상에 도움이 되었나요?</h2>
-        <p>작은 응원은 Tile의 운영과 새로운 기능 개발에 사용됩니다.</p>
-      </div>
-      <div class="support-section-actions">
-        <div class="support-amounts" aria-label="응원 금액 선택">
-          <button class="support-amount" type="button" data-support-tier="small" data-support-amount="1000">
-            <span>작은 응원</span>
-            <strong>1,000원</strong>
-          </button>
-          <button class="support-amount is-featured" type="button" data-support-tier="standard" data-support-amount="3000">
-            <span>개발 응원</span>
-            <strong>3,000원</strong>
-          </button>
-          <button class="support-amount" type="button" data-support-tier="large" data-support-amount="5000">
-            <span>진심 응원</span>
-            <strong>5,000원</strong>
-          </button>
-        </div>
-        <p id="supportStatus" class="support-status" aria-live="polite">결제 링크를 확인하고 있습니다.</p>
-        <p class="support-assurance">응원 여부와 관계없이 Tile의 기본 기능은 계속 무료로 제공됩니다.</p>
-      </div>
-    </section>
-
-    <div class="site-footer">
-      <div><strong>Tile 2.0 Alpha</strong> · HTML, CSS, JavaScript, JSON</div>
-      <div><strong>개발자</strong> · 미림마이스터고등학교 1203 권율 | Instagram @justcallmelight_ | Github @justcallmelightt </div>
-    </div>
-  </main>
-
-  <div id="subjectOverlay" class="overlay hidden" aria-hidden="true">
-    <div id="subjectModal" class="subject-modal" role="dialog" aria-modal="true" aria-labelledby="subjectName">
-      <div class="modal-grabber" aria-hidden="true"></div>
-      <button id="closeModal" class="dialog-close" type="button" aria-label="닫기">&times;</button>
-
-      <div id="modalInfoMode">
-        <span class="dialog-eyebrow">시간표 정보</span>
-        <h2 id="subjectName">과목 정보</h2>
-        <p id="subjectLocation">교실 정보 없음</p>
-        <p id="subjectTeacher">선생님 정보 없음</p>
-      </div>
-
-      <div id="modalInputMode" class="mode-hidden">
-        <span class="dialog-eyebrow">교시 시간</span>
-        <h2 id="modalTitle">입력</h2>
-        <input id="modalInput" type="text" placeholder="입력하세요" />
-        <button id="modalConfirm" type="button">확인</button>
-      </div>
-
-      <div id="subjectEditMode" class="mode-hidden">
-        <div class="subject-editor-heading">
-          <div>
-            <span class="dialog-eyebrow">시간표 편집</span>
-            <h2 id="subjectEditTitle">과목 수정</h2>
-          </div>
-          <span id="subjectEditSource" class="source-badge">기본값</span>
-        </div>
-        <p id="subjectEditContext" class="subject-edit-context">선택한 시간표 칸을 수정합니다.</p>
-        <div class="subject-form-grid">
-          <label class="subject-form-field subject-form-wide" for="subjectEditName">
-            <span>과목</span>
-            <input id="subjectEditName" type="text" placeholder="과목명" />
-          </label>
-          <label class="subject-form-field" for="subjectEditRoom">
-            <span>교실</span>
-            <input id="subjectEditRoom" type="text" placeholder="예: 1-2" />
-          </label>
-          <label class="subject-form-field" for="subjectEditTeacher">
-            <span>선생님</span>
-            <input id="subjectEditTeacher" type="text" placeholder="이름 입력" />
-          </label>
-          <label class="subject-form-field subject-form-wide" for="subjectEditMemo">
-            <span>메모</span>
-            <textarea id="subjectEditMemo" placeholder="과제나 준비물을 적어두세요"></textarea>
-          </label>
-        </div>
-        <div class="subject-actions">
-          <button id="subjectEditNeis" class="secondary-action" type="button">NEIS로 복원</button>
-          <button id="subjectEditReset" class="secondary-action" type="button">같은 과목 일괄 수정</button>
-          <button id="subjectEditSave" class="primary-action" type="button">이 칸 저장</button>
-        </div>
-      </div>
-
-      <div id="subjectBulkMode" class="mode-hidden">
-        <span class="dialog-eyebrow">여러 칸 편집</span>
-        <h2 id="subjectBulkTitle">같은 과목 일괄 수정</h2>
-        <p class="subject-bulk-help">공통 변경값을 정하고 적용할 수업만 선택하세요. 선택하지 않은 칸은 그대로 유지됩니다.</p>
-        <div class="subject-bulk-common">
-          <label class="subject-form-field" for="subjectBulkName"><span>과목</span><input id="subjectBulkName" type="text" /></label>
-          <label class="subject-form-field" for="subjectBulkRoom"><span>교실</span><input id="subjectBulkRoom" type="text" /></label>
-          <label class="subject-form-field" for="subjectBulkTeacher"><span>선생님</span><input id="subjectBulkTeacher" type="text" /></label>
-          <label class="subject-form-field subject-form-wide" for="subjectBulkMemo"><span>메모</span><textarea id="subjectBulkMemo" placeholder="선택한 수업에 같은 메모 적용"></textarea></label>
-        </div>
-        <div class="subject-bulk-toolbar">
-          <strong id="subjectBulkSummary">0개 수업 선택됨</strong>
-          <button id="subjectBulkToggleAll" type="button">전체 해제</button>
-        </div>
-        <div id="subjectBulkRows" class="subject-bulk-list"></div>
-        <div class="subject-actions subject-bulk-actions">
-          <button id="subjectBulkBack" class="secondary-action" type="button">돌아가기</button>
-          <button id="subjectBulkNeis" class="secondary-action" type="button">NEIS로 복원</button>
-          <button id="subjectBulkSave" class="primary-action" type="button">선택한 수업 저장</button>
-        </div>
-      </div>
-
-      <div id="periodEditMode" class="mode-hidden">
-        <span class="dialog-eyebrow">일과 시간 편집</span>
-        <h2 id="periodEditTitle">교시 수정</h2>
-        <p id="periodEditDescription" class="subject-edit-context">선택한 교시의 시작과 종료 시간을 수정합니다.</p>
-        <div class="period-time-grid">
-          <label class="subject-form-field" for="periodStartInput"><span>시작</span><input id="periodStartInput" type="time" /></label>
-          <label class="subject-form-field" for="periodEndInput"><span>종료</span><input id="periodEndInput" type="time" /></label>
-        </div>
-        <p id="periodFormMessage" class="form-message" aria-live="polite"></p>
-        <div class="subject-actions">
-          <button id="periodEditCancel" class="secondary-action" type="button">취소</button>
-          <button id="periodEditSave" class="primary-action" type="button">시간 저장</button>
-        </div>
-      </div>
-    </div>
   </div>
-  <script src="./config.public.js?v=20260703-script-fix"></script>
-  <script src="./config.js?v=20260703-script-fix" onerror="this.remove()"></script>
-  <script src="./neis.js?v=20260716-style-recovery"></script>
-  <script src="./script.js?v=20260725-uiux-refresh"></script>
+
+  <div class="modal" id="linkModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card link-card" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
+      <span class="success-icon"><i data-lucide="link-2"></i></span>
+      <p class="eyebrow">YOUR LETTER IS READY</p>
+      <h2 id="linkTitle">읽기 링크가<br />만들어졌어요.</h2>
+      <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
+      <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
+      <div class="link-actions"><button id="shareNative" class="primary-action" type="button"><i data-lucide="share-2"></i> 공유하기</button><button id="openSharedLetter" class="secondary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
+      <small><i data-lucide="shield-alert"></i> 편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</small>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>

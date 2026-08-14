@@ -1,5 +1,10 @@
 # CSSLetter
 
+> [!CAUTION]
+> `© 2026 Lightframe. All Rights Reserved.` <br>
+> **이 Repository의 모든 파일은 소중한 개인 저작권의 보호를 받습니다. 무단 복제 및 도용을 금지합니다.** <br>
+> **This repository is NOT open source.**
+
 편지지를 고르고 직접 스타일링한 뒤, 받는 사람용 읽기 링크로 마음을 전하는 온라인 편지 앱입니다.
 
 ## 핵심 기능

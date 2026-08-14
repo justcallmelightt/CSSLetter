@@ -281,6 +281,52 @@ function bytesToBase64Url(bytes) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
+function randomBytes(length) {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+async function encryptLetterForStorage(data) {
+  if (!crypto.subtle) return null;
+  const safeLetter = sanitizeLetter(data, { requireContent: true });
+  if (!safeLetter) return null;
+  const plainBytes = new TextEncoder().encode(JSON.stringify(compactLetter(safeLetter)));
+  if (plainBytes.length > maxDecodedBytes) return null;
+  const compressed = await gzip(plainBytes);
+  const content = compressed || plainBytes;
+  const keyBytes = randomBytes(32);
+  const iv = randomBytes(12);
+  const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt"]);
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, content));
+  const payload = new Uint8Array(1 + iv.length + encrypted.length);
+  payload[0] = compressed ? 1 : 0;
+  payload.set(iv, 1);
+  payload.set(encrypted, 13);
+  return { payload: bytesToBase64Url(payload), key: bytesToBase64Url(keyBytes) };
+}
+
+async function decryptStoredLetter(payloadValue, keyValue) {
+  try {
+    if (!crypto.subtle || payloadValue.length > maxSharedValueLength) return null;
+    const payload = base64UrlToBytes(payloadValue);
+    const keyBytes = base64UrlToBytes(keyValue);
+    if (payload.length < 30 || keyBytes.length !== 32) return null;
+    const compressed = payload[0] === 1;
+    if (!compressed && payload[0] !== 0) return null;
+    const iv = payload.slice(1, 13);
+    const cipher = payload.slice(13);
+    const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
+    let bytes = new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher));
+    if (compressed) bytes = await gunzip(bytes);
+    if (bytes.length > maxDecodedBytes) return null;
+    const parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+    return sanitizeLetter(expandLetter(parsed), { requireContent: true });
+  } catch {
+    return null;
+  }
+}
+
 function base64UrlToBytes(value) {
   if (!value || !base64UrlPattern.test(value)) throw new Error("Invalid payload");
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -355,12 +401,63 @@ function getShareBaseUrl() {
   return url.href;
 }
 
+function getLetterApiUrl(id = "") {
+  const base = new URL(getShareBaseUrl());
+  const url = new URL("api/letters", base);
+  if (id) url.searchParams.set("id", id);
+  return url.href;
+}
+
+async function fetchWithTimeout(url, options = {}, timeout = 3500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function createShortShareLink() {
+  try {
+    const encrypted = await encryptLetterForStorage(state);
+    if (!encrypted) return null;
+    const id = bytesToBase64Url(randomBytes(12));
+    const response = await fetchWithTimeout(getLetterApiUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, payload: encrypted.payload }),
+    });
+    if (!response.ok) return null;
+    return `${getShareBaseUrl()}#l=${id}.${encrypted.key}`;
+  } catch {
+    return null;
+  }
+}
+
+async function readShortLetter(value) {
+  try {
+    const [id, key] = value.split(".");
+    if (!/^[A-Za-z0-9_-]{16}$/.test(id || "") || !/^[A-Za-z0-9_-]{43}$/.test(key || "")) return null;
+    const response = await fetchWithTimeout(getLetterApiUrl(id), {}, 5000);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return typeof data.payload === "string" ? await decryptStoredLetter(data.payload, key) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function createShareLink() {
   if (!validateLetter()) return;
   state.date = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date());
-  const encoded = await encodeLetter(state);
-  if (!encoded) return showToast("편지 링크를 만들 수 없어요. 내용을 조금 줄여주세요.");
-  const link = `${getShareBaseUrl()}#letter=${encoded}`;
+  const shortLink = await createShortShareLink();
+  let link = shortLink;
+  if (!link) {
+    const encoded = await encodeLetter(state);
+    if (!encoded) return showToast("편지 링크를 만들 수 없어요. 내용을 조금 줄여주세요.");
+    link = `${getShareBaseUrl()}#letter=${encoded}`;
+  }
   $("#shareLink").value = link;
   $("#linkRecipient").textContent = state.recipient;
   openModal("#linkModal");
@@ -492,7 +589,8 @@ function initEditor() {
       const production = new URL(productionShareUrl);
       const isCurrentPage = target.origin === location.origin && target.pathname === location.pathname;
       const isProductionPage = target.origin === production.origin && target.pathname === production.pathname;
-      if ((!isCurrentPage && !isProductionPage) || !target.hash.startsWith("#letter=")) throw new Error("Invalid share URL");
+      const hasLetterHash = target.hash.startsWith("#l=") || target.hash.startsWith("#letter=");
+      if ((!isCurrentPage && !isProductionPage) || !hasLetterHash) throw new Error("Invalid share URL");
       const opened = window.open(target.href, "_blank");
       if (opened) opened.opener = null;
       else location.assign(target.href);
@@ -512,8 +610,9 @@ function initCommon() {
 }
 
 async function bootstrap() {
+  const shortValue = location.hash.startsWith("#l=") ? location.hash.slice(3) : "";
   const sharedValue = location.hash.startsWith("#letter=") ? location.hash.slice(8) : "";
-  const sharedLetter = sharedValue ? await decodeLetter(sharedValue) : null;
+  const sharedLetter = shortValue ? await readShortLetter(shortValue) : sharedValue ? await decodeLetter(sharedValue) : null;
 
   if (sharedLetter) {
     renderReader(sharedLetter);
@@ -523,7 +622,7 @@ async function bootstrap() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   } else {
-    if (sharedValue) showToast("편지 링크가 올바르지 않아요. 새 편지를 작성해 주세요.");
+    if (shortValue || sharedValue) showToast("편지를 찾을 수 없거나 링크가 만료됐어요.");
     initEditor();
   }
 

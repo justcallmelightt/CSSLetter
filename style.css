@@ -38,11 +38,9 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .tools-entry:hover, .tools-entry[aria-expanded="true"], .account-entry:hover { color: var(--ink); background: rgba(17,17,17,.055); }
 .tools-entry:active, .account-entry:active { transform: scale(.96); transition-duration: 70ms; }
 .tools-panel { position: absolute; top: calc(100% + 10px); right: 0; z-index: 30; width: 260px; padding: 10px; background: rgba(255,255,255,.88); border: 1px solid rgba(17,24,39,.09); border-top-color: rgba(255,255,255,.95); border-radius: 18px; box-shadow: 0 20px 55px rgba(15,23,42,.16), inset 0 1px 0 rgba(255,255,255,.86); backdrop-filter: blur(24px) saturate(1.25); -webkit-backdrop-filter: blur(24px) saturate(1.25); transform-origin: top right; animation: tools-panel-in 220ms var(--ease) both; }
-.tools-label { display: block; padding: 4px 8px 8px; color: #8a8a90; font-size: 10px; font-weight: 800; letter-spacing: .15em; }
-.tools-panel button { display: grid; width: 100%; grid-template-columns: 34px 1fr; align-items: center; gap: 10px; padding: 10px; text-align: left; background: transparent; border: 0; border-radius: 12px; transition: background 150ms ease, transform 150ms var(--ease); }
+.tools-panel button { display: block; width: 100%; padding: 12px; text-align: left; background: transparent; border: 0; border-radius: 12px; transition: background 150ms ease, transform 150ms var(--ease); }
 .tools-panel button:hover { background: rgba(17,17,17,.055); }
 .tools-panel button:active { transform: scale(.98); transition-duration: 70ms; }
-.tools-panel button > svg { width: 34px; height: 34px; padding: 8px; color: #fff; background: #111; border-radius: 10px; }
 .tools-panel button > span { display: grid; gap: 3px; }
 .tools-panel strong { font-size: 13px; letter-spacing: -.02em; }
 .tools-panel small { color: var(--muted); font-size: 11px; line-height: 1.45; }
@@ -50,14 +48,10 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 
 .studio-account { position: relative; isolation: isolate; width: min(460px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 38px; overflow: hidden auto; border: 1px solid rgba(17,24,39,.08); border-top-color: rgba(255,255,255,.9); border-radius: 28px; background: rgba(249,249,251,.9); color: var(--ink); box-shadow: 0 32px 90px rgba(15,23,42,.24), inset 0 1px 0 rgba(255,255,255,.96); backdrop-filter: blur(28px) saturate(1.2); -webkit-backdrop-filter: blur(28px) saturate(1.2); }
 .studio-account::backdrop { background: rgba(10,12,18,.44); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.account-glow { position: absolute; z-index: -1; width: 220px; height: 220px; border-radius: 50%; filter: blur(50px); opacity: .2; pointer-events: none; }
-.account-glow-one { top: -120px; left: -70px; background: #4b32ff; }
-.account-glow-two { right: -90px; bottom: -130px; background: #ef65c8; }
 .account-close { position: absolute; top: 15px; right: 15px; z-index: 2; width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(229,229,232,.78); font-size: 21px; transition: background 150ms ease, transform 150ms var(--ease); }
 .account-close:hover { background: #dedee2; }
 .account-close:active { transform: scale(.92); transition-duration: 70ms; }
 .account-heading { position: relative; margin-bottom: 24px; }
-.account-symbol { display: grid; width: 44px; height: 44px; margin-bottom: 24px; place-items: center; color: #fff; background: #111; border-radius: 14px; box-shadow: 0 10px 24px rgba(17,17,17,.18); font-size: 15px; font-weight: 820; letter-spacing: -.06em; }
 .studio-account h2 { margin-bottom: 12px; font-size: 30px; letter-spacing: -.045em; line-height: 1.08; }
 .account-description { margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
 #accountForm { display: grid; gap: 14px; }
@@ -122,7 +116,6 @@ body.tour-active { overflow: hidden; }
 .brand { display: flex; align-items: center; width: fit-content; gap: 9px; }
 .brand-mark { display: grid; width: 31px; height: 31px; place-items: center; color: #fff; background: var(--dark); border-radius: 7px; font-size: 13px; font-weight: 800; letter-spacing: -.05em; }
 .brand-name { font-size: 16px; font-weight: 750; letter-spacing: -.04em; }
-.brand-tag { margin-left: 4px; color: #a2a29c; font-size: 9px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
 .progress { display: flex; align-items: center; gap: 11px; color: #a0a09a; font-size: 10px; font-weight: 650; }
 .progress span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .progress b { display: grid; width: 19px; height: 19px; place-items: center; border: 1px solid #d0d0cb; border-radius: 50%; font-size: 8px; }

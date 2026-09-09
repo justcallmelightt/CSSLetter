@@ -13,6 +13,7 @@ const sourceFiles = [
   ["/assets/og-v4.png", "assets/og-v4.png", "image/png", "base64"],
   ["/assets/vendor/lucide-0.468.0.min.js", "assets/vendor/lucide-0.468.0.min.js", "text/javascript; charset=utf-8", "text"],
   ["/assets/vendor/PretendardVariable.woff2", "assets/vendor/PretendardVariable.woff2", "font/woff2", "base64"],
+  ["/assets/google-g-logo.png", "assets/google-g-logo.png", "image/png", "base64"],
 ];
 
 await rm(output, { recursive: true, force: true });
@@ -77,5 +78,6 @@ await cp(join(root, "assets/vendor/supabase-2.110.8.min.js"), join(output, "stat
 await cp(join(root, "assets", "og-v4.png"), join(output, "static", "assets", "og-v4.png"));
 await cp(join(root, "assets", "vendor", "lucide-0.468.0.min.js"), join(output, "static", "assets", "vendor", "lucide-0.468.0.min.js"));
 await cp(join(root, "assets", "vendor", "PretendardVariable.woff2"), join(output, "static", "assets", "vendor", "PretendardVariable.woff2"));
+await cp(join(root, "assets", "google-g-logo.png"), join(output, "static", "assets", "google-g-logo.png"));
 
 console.log("CSSLetter build ready.");

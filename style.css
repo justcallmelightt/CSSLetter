@@ -59,17 +59,22 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 #accountForm input { width: 100%; min-height: 46px; padding: 10px 13px; border: 1px solid rgba(17,24,39,.1); border-radius: 12px; outline: 0; background: rgba(255,255,255,.78); transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease; }
 #accountForm input:focus { background: #fff; border-color: rgba(91,70,220,.55); box-shadow: 0 0 0 4px rgba(104,82,228,.1); }
 .lf-signin, .account-secondary { width: 100%; min-height: 50px; padding: 0 14px; border-radius: 14px; font-size: 14px; font-weight: 650; }
-.lf-signin { position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; isolation: isolate; color: #faf9fc; background: linear-gradient(90deg, #008469 0%, #064a9c 10%, #1600cf 22%, #7400f2 48%, #a810e8 65%, #ec58cd 79%, #f3a38e 90%, #f8e36d 100%); border: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.24), 0 9px 24px rgba(71,0,170,.2); transition: filter 160ms ease, box-shadow 160ms ease, transform 160ms var(--ease); }
+.lf-signin-wrap { position: relative; z-index: 0; display: grid; margin-top: 4px; }
+.lf-signin-wrap::before { position: absolute; z-index: -1; inset: 8px 10px -8px; background: linear-gradient(90deg, #008469 0%, #1600cf 25%, #a810e8 62%, #f8e36d 100%); border-radius: 18px; filter: blur(18px); opacity: .62; content: ""; transition: opacity 160ms ease, filter 160ms ease, transform 160ms var(--ease); }
+.lf-signin { position: relative; display: flex; min-height: 52px; align-items: center; justify-content: center; overflow: hidden; isolation: isolate; padding: 14px 44px; color: #faf9fc; background: linear-gradient(90deg, #008469 0%, #064a9c 10%, #1600cf 22%, #7400f2 48%, #a810e8 65%, #ec58cd 79%, #f3a38e 90%, #f8e36d 100%); background-clip: border-box; border: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.24); transition: filter 160ms ease, box-shadow 160ms ease, transform 160ms var(--ease); }
 .lf-signin-mark { display: inline-flex; width: 20px; height: 20px; align-items: center; justify-content: center; margin-right: 8px; font-size: 18px; }
 .lf-signin-label { display: inline-flex; align-items: baseline; gap: 5px; }
 .lf-signin-label strong { font-size: 16px; font-weight: 650; letter-spacing: -.035em; }
 .lf-signin-label > span { font-size: 13px; font-weight: 520; }
-.lf-signin:hover:not(:disabled) { filter: brightness(1.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 12px 30px rgba(71,0,170,.24); }
+.lf-signin-wrap:has(.lf-signin:hover:not(:disabled))::before { opacity: .78; filter: blur(21px); transform: scale(1.02); }
+.lf-signin:hover:not(:disabled) { filter: brightness(1.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 4px 12px rgba(71,0,170,.2); }
 .lf-signin:active:not(:disabled) { transform: scale(.985); filter: brightness(.93); transition-duration: 70ms; }
 .account-secondary { display: flex; align-items: center; justify-content: center; gap: 9px; color: #1f1f1f; background: #fff; border: 1px solid #747775; box-shadow: 0 1px 2px rgba(31,31,31,.08); transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms var(--ease); }
 .account-secondary:hover:not(:disabled) { background: #f8faff; border-color: #5f6368; box-shadow: 0 2px 5px rgba(31,31,31,.16); }
 .account-secondary:active:not(:disabled) { transform: scale(.98); transition-duration: 70ms; }
-.google-mark { display: grid; width: 21px; height: 21px; place-items: center; color: #4285f4; background: #fff; border-radius: 50%; font-size: 13px; font-weight: 850; }
+.google-mark { display: block; width: 18px; height: auto; flex: 0 0 18px; object-fit: contain; }
+.account-provider-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin: -4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.account-provider-note .google-mark { width: 13px; flex-basis: 13px; }
 #accountStatus { margin: 16px 0; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 #accountIdentity { overflow-wrap: anywhere; }
 .account-privacy { display: block; color: var(--muted); font-size: 12px; line-height: 1.7; }

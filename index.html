@@ -218,8 +218,9 @@
     <form id="accountForm">
       <label>이메일<input id="accountEmail" type="email" autocomplete="username" required maxlength="254"></label>
       <label>비밀번호<input id="accountPassword" type="password" autocomplete="current-password" required maxlength="128"></label>
-      <button class="lf-signin" id="accountSignIn" type="submit"><span class="lf-signin-mark" aria-hidden="true">✨</span><span class="lf-signin-label"><strong>Lightframe.</strong><span>으로 로그인</span></span></button>
-      <button id="accountGoogle" class="account-secondary" type="button"><span class="google-mark" aria-hidden="true">G</span><span>Google로 시작하기</span></button>
+      <div class="lf-signin-wrap"><button class="lf-signin" id="accountSignIn" type="submit"><span class="lf-signin-mark" aria-hidden="true">✨</span><span class="lf-signin-label"><strong>Lightframe.</strong><span>으로 로그인</span></span></button></div>
+      <button id="accountGoogle" class="account-secondary" type="button"><img class="google-mark" src="./assets/google-g-logo.png" alt=""><span>Google로 시작하기</span></button>
+      <p class="account-provider-note"><img class="google-mark" src="./assets/google-g-logo.png" alt="">Google 계정으로 Lightframe. 계정을 만들거나 로그인합니다.</p>
     </form>
     <div id="accountProfile" hidden><p id="accountIdentity"></p><button id="accountSignOut" class="account-secondary" type="button">이 기기에서 로그아웃</button></div>
     <p id="accountStatus" role="status" aria-live="polite"></p>

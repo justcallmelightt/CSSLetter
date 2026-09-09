@@ -275,7 +275,7 @@ function showSpecialPaperPopup(template) {
   specialPopupTimer = setTimeout(() => {
     popup.classList.remove("is-visible");
     specialPopupTimer = setTimeout(() => { popup.hidden = true; }, 220);
-  }, 5200);
+  }, 3000);
 }
 
 function setTab(name) {

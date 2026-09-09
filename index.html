@@ -28,9 +28,17 @@
         <span><b>2</b>링크 만들기</span><i></i>
         <span><b>3</b>마음 전하기</span>
       </div>
-      <button class="header-action" id="createLinkTop" type="button">
-        <i data-lucide="send" aria-hidden="true"></i><span>읽기 링크 만들기</span>
-      </button>
+      <div class="studio-header-actions">
+        <div class="tools-menu">
+          <button id="toolsOpen" class="tools-entry" type="button" aria-expanded="false" aria-controls="toolsPanel"><i data-lucide="wrench" aria-hidden="true"></i><span>도구</span></button>
+          <div id="toolsPanel" class="tools-panel" role="menu" hidden>
+            <span class="tools-label">TOOLS</span>
+            <button id="welcomeReplay" type="button" role="menuitem"><i data-lucide="sparkles" aria-hidden="true"></i><span><strong>사용법 익히기</strong><small>편지 작성 흐름을 다시 둘러봐요</small></span></button>
+          </div>
+        </div>
+        <button id="accountOpen" class="account-entry" type="button"><i data-lucide="circle-user-round" aria-hidden="true"></i><span>로그인</span></button>
+        <button class="header-action" id="createLinkTop" type="button"><i data-lucide="send" aria-hidden="true"></i><span>읽기 링크 만들기</span></button>
+      </div>
     </header>
 
     <main class="studio">
@@ -68,14 +76,16 @@
               <span><strong>도트 노트</strong><small>가볍고 솔직한 안부</small></span>
               <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
             </button>
-            <button class="paper-option" type="button" data-template="flower" aria-pressed="false">
-              <span class="paper-thumb flower-thumb" aria-hidden="true"><i>✿</i></span>
+            <button class="paper-option special-paper special-paper-flower" type="button" data-template="flower" aria-pressed="false">
+              <span class="paper-thumb flower-thumb" aria-hidden="true"><i>✿</i><span class="thumb-fx"><b>✦</b><b>•</b><b>✿</b></span></span>
               <span><strong>블룸 가든</strong><small>꽃잎처럼 포근한 마음</small></span>
+              <span class="special-paper-note"><i data-lucide="sparkles" aria-hidden="true"></i>특별 편지지 · 꽃잎 효과</span>
               <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
             </button>
-            <button class="paper-option" type="button" data-template="cute" aria-pressed="false">
-              <span class="paper-thumb cute-thumb" aria-hidden="true"><i>♡</i></span>
+            <button class="paper-option special-paper special-paper-cute" type="button" data-template="cute" aria-pressed="false">
+              <span class="paper-thumb cute-thumb" aria-hidden="true"><i>♡</i><span class="thumb-fx"><b>✦</b><b>•</b><b>♡</b></span></span>
               <span><strong>슈가 팝</strong><small>몽글몽글 귀여운 진심</small></span>
+              <span class="special-paper-note"><i data-lucide="sparkles" aria-hidden="true"></i>특별 편지지 · 팝 효과</span>
               <i class="selected-icon" data-lucide="check" aria-hidden="true"></i>
             </button>
           </div>
@@ -191,6 +201,36 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <aside id="specialPaperPopup" class="special-paper-popup" role="status" aria-live="polite" hidden>
+    <span class="special-popup-mark"><i data-lucide="sparkles" aria-hidden="true"></i></span>
+    <span><small>SPECIAL PAPER</small><strong id="specialPopupTitle">특별 편지지</strong><b id="specialPopupDescription">배경 효과가 함께 적용돼요.</b></span>
+    <button id="specialPopupClose" type="button" aria-label="특별 편지지 안내 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
+  </aside>
+  <dialog id="studioWelcome" class="studio-welcome" aria-labelledby="welcomeTitle">
+    <div id="welcomeSpot" aria-hidden="true"></div>
+    <section class="welcome-caption">
+      <span id="welcomeStep"></span><h2 id="welcomeTitle"></h2><p id="welcomeDescription"></p>
+      <nav aria-label="사용법 안내"><button id="welcomeSkip" type="button">건너뛰기</button><button id="welcomePause" type="button" aria-pressed="false">일시정지</button><button id="welcomeNext" type="button">다음</button></nav>
+    </section>
+    <button id="welcomeBegin" type="button" hidden><span>CSSLetter 시작하기</span><small>눌러서 마음을 전해보세요</small></button>
+  </dialog>
+  <dialog id="studioAccount" class="studio-account" aria-labelledby="accountTitle">
+    <span class="account-glow account-glow-one" aria-hidden="true"></span><span class="account-glow account-glow-two" aria-hidden="true"></span>
+    <button id="accountClose" class="account-close" type="button" aria-label="계정 창 닫기">×</button>
+    <div class="account-heading"><span class="account-symbol" aria-hidden="true">L.</span><p class="eyebrow">LIGHTFRAME. ACCOUNT</p><h2 id="accountTitle">하나의 계정으로.</h2>
+    <p class="account-description">Tile에서 사용하던 계정으로 CSSLetter를 이어서 사용하세요.</p></div>
+    <form id="accountForm">
+      <label>이메일<input id="accountEmail" type="email" autocomplete="username" required maxlength="254"></label>
+      <label>비밀번호<input id="accountPassword" type="password" autocomplete="current-password" required maxlength="128"></label>
+      <button class="lf-signin" id="accountSignIn" type="submit"><span class="lf-signin-mark" aria-hidden="true">✨</span><span class="lf-signin-label"><strong>Lightframe.</strong><span>으로 로그인</span></span></button>
+      <button id="accountGoogle" class="account-secondary" type="button"><span class="google-mark" aria-hidden="true">G</span><span>Google로 시작하기</span></button>
+    </form>
+    <div id="accountProfile" hidden><p id="accountIdentity"></p><button id="accountSignOut" class="account-secondary" type="button">이 기기에서 로그아웃</button></div>
+    <p id="accountStatus" role="status" aria-live="polite"></p>
+    <small class="account-privacy">로그인해도 편지와 편지지는 이 브라우저에만 저장됩니다. 계정으로 자동 업로드하지 않습니다.</small>
+  </dialog>
+  <script src="./assets/vendor/supabase-2.110.8.min.js"></script>
+  <script src="./studio-experience.js" defer></script>
   <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
   <script src="./script.js"></script>
 </body>

@@ -44,6 +44,7 @@ let customPapers = loadCustomPapers();
 let activeCustomPaperId = null;
 let saveTimer;
 let toastTimer;
+let specialPopupTimer;
 
 function cleanString(value, maxLength) {
   return typeof value === "string" ? value.slice(0, maxLength) : "";
@@ -253,6 +254,30 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
 }
 
+function showSpecialPaperPopup(template) {
+  const popup = $("#specialPaperPopup");
+  const details = template === "flower"
+    ? { title: "블룸 가든", description: "편지를 열면 꽃잎이 흐르는 배경 효과가 함께 보여요.", type: "flower" }
+    : template === "cute"
+      ? { title: "슈가 팝", description: "몽글몽글한 컬러 팝 배경 효과가 함께 보여요.", type: "cute" }
+      : null;
+  clearTimeout(specialPopupTimer);
+  if (!details) {
+    popup.classList.remove("is-visible");
+    specialPopupTimer = setTimeout(() => { popup.hidden = true; }, 180);
+    return;
+  }
+  $("#specialPopupTitle").textContent = details.title;
+  $("#specialPopupDescription").textContent = details.description;
+  popup.dataset.theme = details.type;
+  popup.hidden = false;
+  requestAnimationFrame(() => popup.classList.add("is-visible"));
+  specialPopupTimer = setTimeout(() => {
+    popup.classList.remove("is-visible");
+    specialPopupTimer = setTimeout(() => { popup.hidden = true; }, 220);
+  }, 5200);
+}
+
 function setTab(name) {
   $$(".tab").forEach((button) => {
     const active = button.dataset.tab === name;
@@ -411,7 +436,10 @@ function initEditor() {
     state.style = { ...templates[state.template] };
     applyState();
     saveDraft();
+    showSpecialPaperPopup(state.template);
   }));
+
+  $("#specialPopupClose").addEventListener("click", () => showSpecialPaperPopup(""));
 
   $("#saveCustomPaper").addEventListener("click", saveCurrentPaper);
   $("#customPaperName").addEventListener("keydown", (event) => {

@@ -8,9 +8,13 @@ const sourceFiles = [
   ["/index.html", "index.html", "text/html; charset=utf-8", "text"],
   ["/style.css", "style.css", "text/css; charset=utf-8", "text"],
   ["/script.js", "script.js", "text/javascript; charset=utf-8", "text"],
+  ["/studio-experience.js", "studio-experience.js", "text/javascript; charset=utf-8", "text"],
+  ["/tour-boot.js", "tour-boot.js", "text/javascript; charset=utf-8", "text"],
+  ["/assets/vendor/supabase-2.110.8.min.js", "assets/vendor/supabase-2.110.8.min.js", "text/javascript; charset=utf-8", "text"],
   ["/assets/og-v4.png", "assets/og-v4.png", "image/png", "base64"],
   ["/assets/vendor/lucide-0.468.0.min.js", "assets/vendor/lucide-0.468.0.min.js", "text/javascript; charset=utf-8", "text"],
   ["/assets/vendor/PretendardVariable.woff2", "assets/vendor/PretendardVariable.woff2", "font/woff2", "base64"],
+  ["/assets/google-g-logo.png", "assets/google-g-logo.png", "image/png", "base64"],
 ];
 
 await rm(output, { recursive: true, force: true });
@@ -49,7 +53,7 @@ export default {
     const headers = new Headers({
       "Content-Type": asset.contentType,
       "Cache-Control": isVersionedAsset ? "public, max-age=31536000, immutable" : "public, max-age=0, must-revalidate",
-      "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://rfvgrpnchibvprabirjh.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
@@ -70,8 +74,12 @@ await writeFile(join(output, "server", "index.js"), worker);
 await cp(join(root, "index.html"), join(output, "static", "index.html"));
 await cp(join(root, "style.css"), join(output, "static", "style.css"));
 await cp(join(root, "script.js"), join(output, "static", "script.js"));
+await cp(join(root, "studio-experience.js"), join(output, "static", "studio-experience.js"));
+await cp(join(root, "tour-boot.js"), join(output, "static", "tour-boot.js"));
+await cp(join(root, "assets/vendor/supabase-2.110.8.min.js"), join(output, "static/assets/vendor/supabase-2.110.8.min.js"));
 await cp(join(root, "assets", "og-v4.png"), join(output, "static", "assets", "og-v4.png"));
 await cp(join(root, "assets", "vendor", "lucide-0.468.0.min.js"), join(output, "static", "assets", "vendor", "lucide-0.468.0.min.js"));
 await cp(join(root, "assets", "vendor", "PretendardVariable.woff2"), join(output, "static", "assets", "vendor", "PretendardVariable.woff2"));
+await cp(join(root, "assets", "google-g-logo.png"), join(output, "static", "assets", "google-g-logo.png"));
 
 console.log("CSSLetter build ready.");

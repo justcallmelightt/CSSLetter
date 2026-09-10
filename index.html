@@ -11,6 +11,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="./assets/og-v4.png" />
   <meta name="twitter:card" content="summary_large_image" />
+  <script src="./tour-boot.js"></script>
   <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="./style.css" />
   <title>CSSLetter — 마음을 디자인하는 편지</title>
@@ -19,7 +20,6 @@
   <div class="app" id="editorApp">
     <header class="topbar">
       <a class="brand" href="./" aria-label="CSSLetter 홈">
-        <span class="brand-mark" aria-hidden="true">C</span>
         <span class="brand-name">CSSLetter</span>
       </a>
       <div class="progress" aria-label="편지 작성 단계">
@@ -151,7 +151,7 @@
       <span>✿</span><span>❀</span><span>✿</span><span>❀</span><span>✿</span><span>❀</span>
       <span>✿</span><span>❀</span><span>✿</span><span>❀</span><span>✿</span><span>❀</span>
     </div>
-    <header class="reader-header"><a class="brand" href="./"><span class="brand-mark">C</span><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
+    <header class="reader-header"><a class="brand" href="./"><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
     <div class="reader-intro" id="readerIntro">
       <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
       <p>TO. <strong id="introRecipient">당신</strong></p>
@@ -206,8 +206,10 @@
   <dialog id="studioWelcome" class="studio-welcome" aria-labelledby="welcomeTitle">
     <div id="welcomeSpot" aria-hidden="true"></div>
     <section class="welcome-caption">
-      <span id="welcomeStep"></span><h2 id="welcomeTitle"></h2><p id="welcomeDescription"></p>
-      <nav aria-label="사용법 안내"><button id="welcomeSkip" type="button">건너뛰기</button><button id="welcomePause" type="button" aria-pressed="false">일시정지</button><button id="welcomeNext" type="button">다음</button></nav>
+      <div class="welcome-meta"><span id="welcomeStep"></span><span>자동 재생</span></div>
+      <div class="welcome-progress" aria-hidden="true"><i></i></div>
+      <h2 id="welcomeTitle"></h2><p id="welcomeDescription"></p>
+      <nav aria-label="사용법 안내"><button id="welcomeSkip" type="button">건너뛰기</button><button id="welcomePrevious" type="button" disabled>이전</button><button id="welcomePause" type="button" aria-pressed="false">일시정지</button><button id="welcomeNext" type="button">다음</button></nav>
     </section>
     <button id="welcomeBegin" type="button" hidden><span>CSSLetter 시작하기</span><small>눌러서 마음을 전해보세요</small></button>
   </dialog>

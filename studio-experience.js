@@ -6,13 +6,14 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tour = byId('studioWelcome');
   const begin = byId('welcomeBegin');
+  const STEP_DURATION = 2600;
   const steps = [
     ['.template-list', '마음에 맞는 종이를 골라요.', '편지지를 고르면 오른쪽 편지에 바로 반영됩니다. 직접 스타일링에서 색과 글자도 다듬을 수 있어요.'],
     ['#letterPaper', '이제, 당신의 말을 담아요.', '받는 사람과 제목, 본문을 채워보세요. 작성 중인 편지는 이 브라우저에 자동 저장됩니다.'],
     ['#togglePreview', '전하기 전에 한 번 더.', '미리보기에서 받는 사람이 읽을 편지를 확인하세요.'],
     ['#createLinkTop', '하나의 링크로 전하세요.', '읽기 링크 만들기로 완성한 편지를 공유하세요. 링크를 가진 사람은 누구나 읽을 수 있어요.']
   ];
-  let index = 0, timer, frame, savedScroll = 0, previousFocus, paused = false, remaining = 7500, started = 0;
+  let index = 0, timer, frame, savedScroll = 0, previousFocus, paused = false, remaining = STEP_DURATION, started = 0;
   let finishing = false;
   const timers = new Set();
   const later = (fn, delay) => { const id = setTimeout(() => { timers.delete(id); fn(); }, delay); timers.add(id); return id; };
@@ -30,11 +31,26 @@
     frame = requestAnimationFrame(track);
   }
   function schedule() { clearTimeout(timer); if (!paused) { started = performance.now(); timer = setTimeout(next, remaining); } }
+  function animateStepCopy() {
+    const keyframes = reduced.matches
+      ? [{ opacity: 0 }, { opacity: 1 }]
+      : [{ opacity: 0, transform: 'translateY(7px)', filter: 'blur(4px)' }, { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' }];
+    [byId('welcomeTitle'), byId('welcomeDescription')].forEach((element, order) => {
+      element.getAnimations?.().forEach(animation => animation.cancel());
+      element.animate?.(keyframes, { duration: reduced.matches ? 150 : 280, delay: reduced.matches ? 0 : order * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+    });
+  }
   function scene(i) {
-    index = i; remaining = 7500;
+    index = i; remaining = STEP_DURATION;
+    tour.style.setProperty('--welcome-duration', `${STEP_DURATION}ms`);
+    tour.classList.remove('is-playing');
+    void tour.offsetWidth;
+    tour.classList.add('is-playing');
     byId('welcomeStep').textContent = `${i + 1} / ${steps.length}`;
     byId('welcomeTitle').textContent = steps[i][1];
     byId('welcomeDescription').textContent = steps[i][2];
+    animateStepCopy();
+    byId('welcomePrevious').disabled = i === 0;
     const target = targetForStep();
     target.scrollIntoView({ block: 'start', behavior: 'instant' });
     window.scrollBy({ top: -60, behavior: 'instant' });
@@ -56,7 +72,9 @@
     previousFocus = document.activeElement; savedScroll = scrollY; paused = false; finishing = false;
     tour.className = 'studio-welcome'; begin.hidden = true;
     byId('welcomePause').textContent = '일시정지'; byId('welcomePause').setAttribute('aria-pressed', 'false');
-    tour.showModal(); document.body.classList.add('tour-active'); scene(0); track(); byId('welcomeNext').focus();
+    tour.showModal(); document.body.classList.add('tour-active'); scene(0); track();
+    document.documentElement.classList.remove('cssletter-tour-pending');
+    byId('welcomeNext').focus();
   }
   const toolsOpen = byId('toolsOpen');
   const toolsPanel = byId('toolsPanel');
@@ -77,10 +95,12 @@
   document.addEventListener('pointerdown', event => { if (!event.target.closest('.tools-menu')) closeTools(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && !toolsPanel.hidden) { event.preventDefault(); closeTools({ restoreFocus: true }); } });
   byId('welcomeNext').addEventListener('click', next);
+  byId('welcomePrevious').addEventListener('click', () => { if (index > 0) scene(index - 1); });
   byId('welcomeSkip').addEventListener('click', close);
   tour.addEventListener('cancel', event => { event.preventDefault(); close(); });
   byId('welcomePause').addEventListener('click', () => {
     paused = !paused;
+    tour.classList.toggle('is-paused', paused);
     if (paused) { remaining = Math.max(100, remaining - (performance.now() - started)); clearTimeout(timer); } else schedule();
     byId('welcomePause').textContent = paused ? '계속 재생' : '일시정지'; byId('welcomePause').setAttribute('aria-pressed', String(paused));
   });
@@ -88,17 +108,24 @@
   begin.addEventListener('pointerleave', () => { if (!finishing) tour.classList.remove('light'); });
   begin.addEventListener('click', () => {
     if (finishing) return; finishing = true; tour.classList.add('light', 'leaving');
+    const editor = byId('editorApp');
+    const editorFrames = reduced.matches
+      ? [{ opacity: 0 }, { opacity: 1 }]
+      : [{ opacity: 0, transform: 'translateY(12px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' }];
+    Object.assign(editor.style, reduced.matches ? { opacity: '0' } : { opacity: '0', transform: 'translateY(12px)', filter: 'blur(6px)' });
     later(() => tour.classList.add('reveal'), reduced.matches ? 150 : 600);
     later(() => {
+      editor.animate?.(editorFrames, { duration: reduced.matches ? 150 : 900, easing: 'cubic-bezier(.16,1,.3,1)' });
+      editor.style.removeProperty('opacity'); editor.style.removeProperty('transform'); editor.style.removeProperty('filter');
       close(); window.scrollTo({ top: 0, behavior: 'instant' });
-      byId('editorApp').animate(reduced.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(12px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' }], { duration: reduced.matches ? 150 : 900, easing: 'cubic-bezier(.16,1,.3,1)' });
     }, reduced.matches ? 300 : 1500);
   });
   for (const dialog of [tour, byId('studioAccount')]) dialog.addEventListener('keydown', event => event.stopPropagation());
   let first = true;
   try { first = !localStorage.getItem('cssletter.welcome.v1'); } catch {}
   // OAuth returns go directly back to the editor, never through the tutorial.
-  if (first && !new URLSearchParams(location.search).has('code')) later(open, 1200);
+  if (first && !new URLSearchParams(location.search).has('code')) later(open, 0);
+  else document.documentElement.classList.remove('cssletter-tour-pending');
 
   const account = byId('studioAccount');
   const status = byId('accountStatus');

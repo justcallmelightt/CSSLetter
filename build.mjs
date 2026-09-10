@@ -9,6 +9,7 @@ const sourceFiles = [
   ["/style.css", "style.css", "text/css; charset=utf-8", "text"],
   ["/script.js", "script.js", "text/javascript; charset=utf-8", "text"],
   ["/studio-experience.js", "studio-experience.js", "text/javascript; charset=utf-8", "text"],
+  ["/tour-boot.js", "tour-boot.js", "text/javascript; charset=utf-8", "text"],
   ["/assets/vendor/supabase-2.110.8.min.js", "assets/vendor/supabase-2.110.8.min.js", "text/javascript; charset=utf-8", "text"],
   ["/assets/og-v4.png", "assets/og-v4.png", "image/png", "base64"],
   ["/assets/vendor/lucide-0.468.0.min.js", "assets/vendor/lucide-0.468.0.min.js", "text/javascript; charset=utf-8", "text"],
@@ -74,6 +75,7 @@ await cp(join(root, "index.html"), join(output, "static", "index.html"));
 await cp(join(root, "style.css"), join(output, "static", "style.css"));
 await cp(join(root, "script.js"), join(output, "static", "script.js"));
 await cp(join(root, "studio-experience.js"), join(output, "static", "studio-experience.js"));
+await cp(join(root, "tour-boot.js"), join(output, "static", "tour-boot.js"));
 await cp(join(root, "assets/vendor/supabase-2.110.8.min.js"), join(output, "static/assets/vendor/supabase-2.110.8.min.js"));
 await cp(join(root, "assets", "og-v4.png"), join(output, "static", "assets", "og-v4.png"));
 await cp(join(root, "assets", "vendor", "lucide-0.468.0.min.js"), join(output, "static", "assets", "vendor", "lucide-0.468.0.min.js"));

@@ -88,7 +88,7 @@
           </div>
           <section class="saved-papers" id="savedPapersSection" hidden aria-labelledby="savedPapersTitle">
             <div class="saved-papers-heading">
-              <div><span>MY PAPERS</span><h2 id="savedPapersTitle">나의 편지지</h2></div>
+              <div><h2 id="savedPapersTitle">나의 편지지</h2></div>
               <b id="savedPapersCount">0</b>
             </div>
             <div class="saved-paper-list" id="savedPaperList" role="radiogroup" aria-label="저장한 편지지"></div>
@@ -105,7 +105,7 @@
             <label class="range-field">줄 간격 <b id="lineHeightValue">1.9</b><input id="lineHeight" type="range" min="1.5" max="2.3" value="1.9" step="0.1" /></label>
           </div>
           <div class="save-paper-card">
-            <div class="save-paper-copy"><span>MY PAPER</span><strong>지금 스타일을 편지지로 저장</strong><small>이 브라우저의 ‘나의 편지지’에 보관돼요.</small></div>
+            <div class="save-paper-copy"><strong>지금 스타일을 편지지로 저장</strong><small>이 브라우저의 ‘나의 편지지’에 보관돼요.</small></div>
             <label for="customPaperName">편지지 이름</label>
             <div class="save-paper-form">
               <input id="customPaperName" maxlength="24" placeholder="예: 새벽의 파란 편지" autocomplete="off" />
@@ -128,7 +128,7 @@
 
         <div class="letter-stage">
           <article class="letter-paper theme-cream" id="letterPaper">
-            <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+            <div class="paper-accent" aria-hidden="true"><span></span></div>
             <div class="letter-fields">
               <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
               <input class="title-field" id="letterTitle" maxlength="80" placeholder="편지의 제목을 적어주세요" autocomplete="off" />
@@ -153,15 +153,32 @@
     </div>
     <header class="reader-header"><a class="brand" href="./"><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
     <div class="reader-intro" id="readerIntro">
-      <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
-      <p>TO. <strong id="introRecipient">당신</strong></p>
-      <h1>마음을 담은<br />편지가 도착했어요.</h1>
-      <button id="openLetter" type="button"><i data-lucide="mail-open"></i> 편지 열어보기</button>
-      <small>FROM. <span id="introSender">누군가</span></small>
+      <section class="reader-locked" id="readerLocked" hidden aria-labelledby="lockedTitle">
+        <span class="locked-mark" aria-hidden="true"><i data-lucide="lock-keyhole"></i></span>
+        <p>To. <strong id="lockedRecipient">당신</strong></p>
+        <h1 id="lockedTitle">아직 열리지 않은<br />편지가 도착했어요.</h1>
+        <div class="arrival-countdown" id="arrivalCountdown" role="timer" aria-live="off" aria-label="편지가 열리기까지 남은 시간">
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="hours"><b>00</b><b>00</b></span></span><small>시간</small></div>
+          <i>:</i>
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="minutes"><b>00</b><b>00</b></span></span><small>분</small></div>
+          <i>:</i>
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="seconds"><b>00</b><b>00</b></span></span><small>초</small></div>
+        </div>
+        <time id="unlockAtLabel"></time>
+        <button id="enableArrivalNotification" class="notification-action" type="button"><i data-lucide="bell"></i><span>열리면 알려주세요</span></button>
+        <small class="notification-note" id="notificationNote">이 페이지를 열어 둔 동안 알림을 받을 수 있어요.</small>
+      </section>
+      <section class="reader-arrival" id="readerArrival">
+        <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
+        <p>To. <strong id="introRecipient">당신</strong></p>
+        <h1>마음을 담은<br />편지가 도착했어요.</h1>
+        <button id="openLetter" type="button"><i data-lucide="mail-open"></i> 편지 열어보기</button>
+        <small>From. <span id="introSender">누군가</span></small>
+      </section>
     </div>
     <div class="reader-letter-wrap" id="readerLetterWrap" hidden>
       <article class="letter-paper reader-paper" id="readerPaper">
-        <div class="paper-accent"><span></span><b>CSSLETTER · A LETTER FOR YOU</b></div>
+        <div class="paper-accent" aria-hidden="true"><span></span></div>
         <div class="reader-content">
           <p class="reader-to">To. <strong id="readRecipient"></strong></p>
           <h2 id="readTitle"></h2>
@@ -178,29 +195,46 @@
     <div class="modal-backdrop" data-close-modal></div>
     <section class="modal-card preview-card" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
       <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
-      <p class="eyebrow">READER PREVIEW</p><h2 id="previewTitle">받는 사람은 이렇게 읽어요.</h2>
+      <h2 id="previewTitle">받는 사람은 이렇게 읽어요.</h2>
       <div class="mini-letter" id="miniLetter"><p id="miniTo"></p><h3 id="miniTitle"></h3><p id="miniBody"></p><strong id="miniFrom"></strong></div>
     </section>
   </div>
 
   <div class="modal" id="linkModal" aria-hidden="true">
     <div class="modal-backdrop" data-close-modal></div>
-    <section class="modal-card link-card" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+    <section class="modal-card link-card" role="dialog" aria-modal="true" aria-label="읽기 링크 만들기">
       <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
-      <span class="success-icon"><i data-lucide="link-2"></i></span>
-      <p class="eyebrow">YOUR LETTER IS READY</p>
-      <h2 id="linkTitle">읽기 링크가<br />만들어졌어요.</h2>
-      <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
-      <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
-      <div class="link-actions"><button id="shareNative" class="primary-action" type="button"><i data-lucide="share-2"></i> 공유하기</button><button id="openSharedLetter" class="secondary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
-      <small><i data-lucide="shield-alert"></i> 편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</small>
+      <div class="link-setup" id="linkSetup">
+        <span class="success-icon"><i data-lucide="calendar-clock"></i></span>
+        <h2 id="linkTitle">언제 열 수 있게<br />보낼까요?</h2>
+        <p>마지막으로 편지가 열리는 순간을 정해주세요.</p>
+        <div class="delivery-choice" role="radiogroup" aria-label="편지 공개 방식">
+          <button id="scheduleChoiceNow" class="delivery-choice-button is-selected" type="button" role="radio" aria-checked="true" data-delivery-choice="now"><i data-lucide="send"></i><span><strong>지금 바로</strong><small>링크를 받으면 바로 열어요</small></span></button>
+          <button id="scheduleChoiceLater" class="delivery-choice-button" type="button" role="radio" aria-checked="false" data-delivery-choice="later"><i data-lucide="clock-3"></i><span><strong>날짜 정하기</strong><small>정한 순간까지 카운트다운해요</small></span></button>
+        </div>
+        <div class="share-schedule-options" id="shareScheduleOptions" hidden>
+          <label for="shareUnlockAt">편지가 열리는 날짜와 시간</label>
+          <input id="shareUnlockAt" type="datetime-local" />
+          <p><i data-lucide="info" aria-hidden="true"></i> 예약 전까지 받는 화면에서 내용을 숨겨요. 링크 자체를 암호화하는 기능은 아니에요.</p>
+        </div>
+        <button id="finalizeShareLink" class="finalize-link" type="button"><span>읽기 링크 만들기</span><i data-lucide="arrow-right"></i></button>
+      </div>
+      <div class="link-result" id="linkResult" hidden>
+        <span class="success-icon"><i data-lucide="link-2"></i></span>
+        <h2>읽기 링크가<br />만들어졌어요.</h2>
+        <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
+        <p class="link-delivery-summary" id="linkDeliverySummary"></p>
+        <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
+        <div class="link-actions"><button id="shareNative" class="primary-action" type="button"><i data-lucide="share-2"></i> 공유하기</button><button id="openSharedLetter" class="secondary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
+        <small><i data-lucide="shield-alert"></i> 편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</small>
+      </div>
     </section>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <aside id="specialPaperPopup" class="special-paper-popup" role="status" aria-live="polite" hidden>
     <span class="special-popup-mark"><i data-lucide="sparkles" aria-hidden="true"></i></span>
-    <span><small>SPECIAL PAPER</small><strong id="specialPopupTitle">특별 편지지</strong><b id="specialPopupDescription">배경 효과가 함께 적용돼요.</b></span>
+    <span><strong id="specialPopupTitle">특별 편지지</strong><b id="specialPopupDescription">배경 효과가 함께 적용돼요.</b></span>
     <button id="specialPopupClose" type="button" aria-label="특별 편지지 안내 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
   </aside>
   <dialog id="studioWelcome" class="studio-welcome" aria-labelledby="welcomeTitle">

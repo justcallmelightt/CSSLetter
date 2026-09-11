@@ -28,6 +28,7 @@ const maxDecodedBytes = 24000;
 const productionShareUrl = "https://cssletter.vercel.app/";
 const customPapersKey = "cssletter.customPapers.v1";
 const maxCustomPapers = 12;
+const maxScheduleYears = 10;
 
 const defaultState = {
   template: "cream",
@@ -35,6 +36,7 @@ const defaultState = {
   title: "",
   body: "",
   sender: "",
+  unlockAt: null,
   style: { ...templates.cream },
   date: new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date()),
 };
@@ -45,6 +47,8 @@ let activeCustomPaperId = null;
 let saveTimer;
 let toastTimer;
 let specialPopupTimer;
+let readerCountdownTimer;
+let deliveryChoice = "now";
 
 function cleanString(value, maxLength) {
   return typeof value === "string" ? value.slice(0, maxLength) : "";
@@ -60,6 +64,15 @@ function cleanNumber(value, min, max, fallback, precision = 0) {
   const clamped = Math.min(max, Math.max(min, numeric));
   const factor = 10 ** precision;
   return Math.round(clamped * factor) / factor;
+}
+
+function cleanUnlockAt(value) {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "string" || value.length > 40) return null;
+  const time = Date.parse(value);
+  const latest = Date.now() + maxScheduleYears * 366 * 24 * 60 * 60 * 1000;
+  if (!Number.isFinite(time) || time > latest) return null;
+  return new Date(time).toISOString();
 }
 
 function createLocalId() {
@@ -163,6 +176,7 @@ function sanitizeLetter(raw, { requireContent = false } = {}) {
     title: cleanString(raw.title, limits.title),
     body: cleanString(raw.body, limits.body),
     sender: cleanString(raw.sender, limits.sender),
+    unlockAt: cleanUnlockAt(raw.unlockAt),
     date: cleanString(raw.date, limits.date) || defaultState.date,
     style: {
       paper: cleanColor(rawStyle.paper, baseStyle.paper),
@@ -231,6 +245,32 @@ function applyState() {
     button.setAttribute("aria-pressed", String(selected));
   });
   renderCustomPapers();
+}
+
+function toLocalDateTimeValue(isoValue) {
+  const date = isoValue ? new Date(isoValue) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+  return local.toISOString().slice(0, 16);
+}
+
+function setDeliveryChoice(choice) {
+  deliveryChoice = choice === "later" ? "later" : "now";
+  $$('[data-delivery-choice]').forEach((button) => {
+    const selected = button.dataset.deliveryChoice === deliveryChoice;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-checked", String(selected));
+  });
+  $("#shareScheduleOptions").hidden = deliveryChoice !== "later";
+  if (deliveryChoice === "later") $("#shareUnlockAt").focus({ preventScroll: true });
+}
+
+function prepareDeliveryStep() {
+  const input = $("#shareUnlockAt");
+  input.min = toLocalDateTimeValue(new Date(Date.now() + 60 * 1000).toISOString());
+  input.max = toLocalDateTimeValue(new Date(Date.now() + maxScheduleYears * 365 * 24 * 60 * 60 * 1000).toISOString());
+  const hasFutureSchedule = state.unlockAt && Date.parse(state.unlockAt) > Date.now();
+  input.value = toLocalDateTimeValue(hasFutureSchedule ? state.unlockAt : null);
+  setDeliveryChoice(hasFutureSchedule ? "later" : "now");
 }
 
 function syncCustomControls() {
@@ -314,12 +354,12 @@ function base64UrlToBytes(value) {
 }
 
 function compactLetter(letter) {
-  return { v: 2, t: letter.template, r: letter.recipient, h: letter.title, b: letter.body, f: letter.sender, d: letter.date, s: [letter.style.paper, letter.style.ink, letter.style.accent, letter.style.font, letter.style.size, letter.style.leading] };
+  return { v: 3, t: letter.template, r: letter.recipient, h: letter.title, b: letter.body, f: letter.sender, d: letter.date, u: letter.unlockAt, s: [letter.style.paper, letter.style.ink, letter.style.accent, letter.style.font, letter.style.size, letter.style.leading] };
 }
 
 function expandLetter(value) {
-  if (!value || value.v !== 2 || !Array.isArray(value.s)) return value;
-  return { template: value.t, recipient: value.r, title: value.h, body: value.b, sender: value.f, date: value.d, style: { paper: value.s[0], ink: value.s[1], accent: value.s[2], font: value.s[3], size: value.s[4], leading: value.s[5] } };
+  if (!value || ![2, 3].includes(value.v) || !Array.isArray(value.s)) return value;
+  return { template: value.t, recipient: value.r, title: value.h, body: value.b, sender: value.f, date: value.d, unlockAt: value.v === 3 ? value.u : null, style: { paper: value.s[0], ink: value.s[1], accent: value.s[2], font: value.s[3], size: value.s[4], leading: value.s[5] } };
 }
 
 async function gzip(bytes) {
@@ -380,15 +420,41 @@ function getShareBaseUrl() {
   return url.href;
 }
 
-async function createShareLink() {
+function createShareLink() {
   if (!validateLetter()) return;
+  $("#linkSetup").hidden = false;
+  $("#linkResult").hidden = true;
+  prepareDeliveryStep();
+  openModal("#linkModal");
+}
+
+async function finalizeShareLink() {
+  let safeUnlockAt = null;
+  if (deliveryChoice === "later") {
+    const chosen = new Date($("#shareUnlockAt").value);
+    safeUnlockAt = Number.isFinite(chosen.getTime()) ? cleanUnlockAt(chosen.toISOString()) : null;
+  }
+  if (deliveryChoice === "later" && !safeUnlockAt) {
+    $("#shareUnlockAt").focus();
+    return showToast(`공개 시각은 ${maxScheduleYears}년 안으로 선택해 주세요.`);
+  }
+  if (safeUnlockAt && Date.parse(safeUnlockAt) <= Date.now()) {
+    $("#shareUnlockAt").focus();
+    return showToast("현재보다 뒤의 공개 시각을 선택해 주세요.");
+  }
+  state.unlockAt = safeUnlockAt;
   state.date = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date());
   const encoded = await encodeLetter(state);
   if (!encoded) return showToast("편지 링크를 만들 수 없어요. 내용을 조금 줄여주세요.");
   const link = `${getShareBaseUrl()}#letter=${encoded}`;
   $("#shareLink").value = link;
   $("#linkRecipient").textContent = state.recipient;
-  openModal("#linkModal");
+  $("#linkDeliverySummary").textContent = safeUnlockAt
+    ? `${new Intl.DateTimeFormat("ko-KR", { dateStyle: "long", timeStyle: "short" }).format(new Date(safeUnlockAt))}부터 열 수 있어요.`
+    : "링크를 받는 즉시 열 수 있어요.";
+  $("#linkSetup").hidden = true;
+  $("#linkResult").hidden = false;
+  saveDraft();
 }
 
 function renderPreview() {
@@ -401,13 +467,7 @@ function renderPreview() {
   openModal("#previewModal");
 }
 
-function renderReader(letter) {
-  const reader = $("#readerApp");
-  const readerTemplate = letter.template in templates ? letter.template : "cream";
-  $("#editorApp").hidden = true;
-  [...reader.classList].filter((name) => name.startsWith("reader-theme-")).forEach((name) => reader.classList.remove(name));
-  reader.classList.add(`reader-theme-${readerTemplate}`);
-  reader.hidden = false;
+function populateReaderLetter(letter) {
   $("#introRecipient").textContent = letter.recipient || "당신";
   $("#introSender").textContent = letter.sender || "누군가";
   $("#readRecipient").textContent = letter.recipient || "당신";
@@ -415,7 +475,110 @@ function renderReader(letter) {
   $("#readBody").textContent = letter.body || "";
   $("#readSender").textContent = letter.sender || "누군가";
   $("#readDate").textContent = letter.date || "";
-  setPaperStyle($("#readerPaper"), letter.style || templates.cream, readerTemplate);
+  setPaperStyle($("#readerPaper"), letter.style || templates.cream, letter.template in templates ? letter.template : "cream");
+}
+
+function setCountdownValue(name, value, animate) {
+  const roll = $(`[data-countdown="${name}"]`);
+  const formatted = String(value).padStart(2, "0");
+  const current = roll.children[0];
+  const next = roll.children[1];
+  if (roll.dataset.value === formatted) return;
+  clearTimeout(Number(roll.dataset.timer));
+  roll.classList.remove("is-rolling");
+  current.textContent = roll.dataset.value || formatted;
+  next.textContent = formatted;
+  roll.dataset.value = formatted;
+  if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    current.textContent = formatted;
+    return;
+  }
+  void roll.offsetHeight;
+  roll.classList.add("is-rolling");
+  roll.dataset.timer = String(setTimeout(() => {
+    current.textContent = formatted;
+    roll.classList.remove("is-rolling");
+  }, 460));
+}
+
+function notifyLetterArrival(letter) {
+  showToast("이제 편지를 열어볼 수 있어요.");
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const notification = new Notification("CSSLetter · 편지가 열렸어요", {
+    body: `${letter.recipient || "당신"}님에게 도착한 편지를 지금 열어보세요.`,
+    icon: "./assets/og-v4.png",
+    tag: `cssletter-${letter.unlockAt || letter.date}`,
+  });
+  notification.onclick = () => { window.focus(); notification.close(); };
+}
+
+function revealScheduledLetter(letter) {
+  clearInterval(readerCountdownTimer);
+  populateReaderLetter(letter);
+  $("#readerLocked").hidden = true;
+  $("#readerArrival").hidden = false;
+  $("#readerArrival").classList.add("has-arrived");
+  notifyLetterArrival(letter);
+}
+
+function startReaderCountdown(letter) {
+  const unlockTime = Date.parse(letter.unlockAt);
+  const update = (animate = true) => {
+    const remaining = Math.max(0, unlockTime - Date.now());
+    if (remaining <= 0) return revealScheduledLetter(letter);
+    const totalSeconds = Math.ceil(remaining / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    setCountdownValue("hours", hours, animate);
+    setCountdownValue("minutes", minutes, animate);
+    setCountdownValue("seconds", seconds, animate);
+    $("#arrivalCountdown").setAttribute("aria-label", `편지가 열리기까지 ${hours}시간 ${minutes}분 ${seconds}초`);
+  };
+  update(false);
+  readerCountdownTimer = setInterval(update, 250);
+}
+
+async function enableArrivalNotification() {
+  const button = $("#enableArrivalNotification");
+  const note = $("#notificationNote");
+  if (!("Notification" in window)) {
+    button.hidden = true;
+    note.textContent = "이 브라우저에서는 알림을 지원하지 않아요. 페이지의 카운터는 계속 작동해요.";
+    return;
+  }
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      button.classList.add("is-enabled");
+      button.querySelector("span").textContent = "알림을 준비했어요";
+      note.textContent = "이 페이지를 열어 둔 동안 편지가 열리면 알려드릴게요.";
+    } else {
+      note.textContent = "알림이 허용되지 않았어요. 카운터가 끝나면 화면에서 바로 알려드려요.";
+    }
+  } catch {
+    note.textContent = "알림을 켤 수 없어요. 카운터가 끝나면 화면에서 바로 알려드려요.";
+  }
+}
+
+function renderReader(letter) {
+  const reader = $("#readerApp");
+  const readerTemplate = letter.template in templates ? letter.template : "cream";
+  $("#editorApp").hidden = true;
+  [...reader.classList].filter((name) => name.startsWith("reader-theme-")).forEach((name) => reader.classList.remove(name));
+  reader.classList.add(`reader-theme-${readerTemplate}`);
+  reader.hidden = false;
+  const isLocked = letter.unlockAt && Date.parse(letter.unlockAt) > Date.now();
+  $("#readerLocked").hidden = !isLocked;
+  $("#readerArrival").hidden = isLocked;
+  if (isLocked) {
+    $("#lockedRecipient").textContent = letter.recipient || "당신";
+    $("#unlockAtLabel").dateTime = letter.unlockAt;
+    $("#unlockAtLabel").textContent = new Intl.DateTimeFormat("ko-KR", { dateStyle: "long", timeStyle: "short" }).format(new Date(letter.unlockAt));
+    startReaderCountdown(letter);
+  } else {
+    populateReaderLetter(letter);
+  }
   document.title = `${letter.recipient || "당신"}에게 도착한 편지 — CSSLetter`;
 }
 
@@ -494,6 +657,8 @@ function initEditor() {
   $("#togglePreview").addEventListener("click", renderPreview);
   $("#createLinkTop").addEventListener("click", createShareLink);
   $("#createLinkMobile").addEventListener("click", createShareLink);
+  $$('[data-delivery-choice]').forEach((button) => button.addEventListener("click", () => setDeliveryChoice(button.dataset.deliveryChoice)));
+  $("#finalizeShareLink").addEventListener("click", finalizeShareLink);
   $("#copyLink").addEventListener("click", async () => {
     const link = $("#shareLink").value;
     try { await navigator.clipboard.writeText(link); } catch { $("#shareLink").select(); document.execCommand("copy"); }
@@ -532,6 +697,7 @@ function initEditor() {
 
 function initCommon() {
   $$('[data-close-modal]').forEach((element) => element.addEventListener("click", () => closeModal(element.closest(".modal"))));
+  $("#enableArrivalNotification").addEventListener("click", enableArrivalNotification);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") $$(".modal.is-open").forEach(closeModal);
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && !$("#editorApp").hidden) createShareLink();

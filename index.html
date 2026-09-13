@@ -223,10 +223,24 @@
         <span class="success-icon"><i data-lucide="link-2"></i></span>
         <h2>읽기 링크가<br />만들어졌어요.</h2>
         <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
-        <p class="link-delivery-summary" id="linkDeliverySummary"></p>
+        <section class="result-delivery" aria-labelledby="resultDeliveryTitle">
+          <div class="result-delivery-heading">
+            <span class="result-delivery-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span>
+            <span><strong id="resultDeliveryTitle">나중에 열기</strong><small id="linkDeliverySummary">링크를 받는 즉시 열 수 있어요.</small></span>
+            <label class="result-delivery-toggle">
+              <input id="resultScheduleEnabled" type="checkbox" />
+              <span aria-hidden="true"></span>
+              <b>나중에 열기 사용</b>
+            </label>
+          </div>
+          <div class="result-schedule-options" id="resultScheduleOptions" hidden>
+            <label for="resultUnlockAt">편지가 열리는 날짜와 시간</label>
+            <input id="resultUnlockAt" type="datetime-local" />
+          </div>
+        </section>
         <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
+        <small class="link-security-note"><i data-lucide="shield-alert"></i><span>편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</span></small>
         <div class="link-actions"><button id="shareNative" class="primary-action" type="button"><i data-lucide="share-2"></i> 공유하기</button><button id="openSharedLetter" class="secondary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
-        <small><i data-lucide="shield-alert"></i> 편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</small>
       </div>
     </section>
   </div>

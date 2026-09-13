@@ -428,6 +428,41 @@ function createShareLink() {
   openModal("#linkModal");
 }
 
+function formatDeliverySummary(unlockAt) {
+  return unlockAt
+    ? `${new Intl.DateTimeFormat("ko-KR", { dateStyle: "long", timeStyle: "short" }).format(new Date(unlockAt))}부터 열 수 있어요.`
+    : "링크를 받는 즉시 열 수 있어요.";
+}
+
+function syncResultSchedule(unlockAt) {
+  const enabled = Boolean(unlockAt);
+  const input = $("#resultUnlockAt");
+  $("#resultScheduleEnabled").checked = enabled;
+  $("#resultScheduleOptions").hidden = !enabled;
+  input.min = toLocalDateTimeValue(new Date(Date.now() + 60 * 1000).toISOString());
+  input.max = toLocalDateTimeValue(new Date(Date.now() + maxScheduleYears * 365 * 24 * 60 * 60 * 1000).toISOString());
+  input.value = toLocalDateTimeValue(unlockAt);
+  $("#linkDeliverySummary").textContent = formatDeliverySummary(unlockAt);
+}
+
+async function updateGeneratedLink(unlockAt) {
+  const result = $("#linkResult");
+  result.setAttribute("aria-busy", "true");
+  state.unlockAt = unlockAt;
+  state.date = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date());
+  const encoded = await encodeLetter(state);
+  result.removeAttribute("aria-busy");
+  if (!encoded) {
+    showToast("편지 링크를 만들 수 없어요. 내용을 조금 줄여주세요.");
+    return false;
+  }
+  $("#shareLink").value = `${getShareBaseUrl()}#letter=${encoded}`;
+  $("#linkRecipient").textContent = state.recipient;
+  $("#linkDeliverySummary").textContent = formatDeliverySummary(unlockAt);
+  saveDraft();
+  return true;
+}
+
 async function finalizeShareLink() {
   let safeUnlockAt = null;
   if (deliveryChoice === "later") {
@@ -442,19 +477,42 @@ async function finalizeShareLink() {
     $("#shareUnlockAt").focus();
     return showToast("현재보다 뒤의 공개 시각을 선택해 주세요.");
   }
-  state.unlockAt = safeUnlockAt;
-  state.date = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date());
-  const encoded = await encodeLetter(state);
-  if (!encoded) return showToast("편지 링크를 만들 수 없어요. 내용을 조금 줄여주세요.");
-  const link = `${getShareBaseUrl()}#letter=${encoded}`;
-  $("#shareLink").value = link;
-  $("#linkRecipient").textContent = state.recipient;
-  $("#linkDeliverySummary").textContent = safeUnlockAt
-    ? `${new Intl.DateTimeFormat("ko-KR", { dateStyle: "long", timeStyle: "short" }).format(new Date(safeUnlockAt))}부터 열 수 있어요.`
-    : "링크를 받는 즉시 열 수 있어요.";
+  if (!await updateGeneratedLink(safeUnlockAt)) return;
+  syncResultSchedule(safeUnlockAt);
   $("#linkSetup").hidden = true;
   $("#linkResult").hidden = false;
-  saveDraft();
+}
+
+async function toggleResultSchedule(event) {
+  const enabled = event.target.checked;
+  const options = $("#resultScheduleOptions");
+  options.hidden = !enabled;
+  if (!enabled) {
+    await updateGeneratedLink(null);
+    showToast("지금 바로 열리는 링크로 바꿨어요.");
+    return;
+  }
+  const input = $("#resultUnlockAt");
+  input.min = toLocalDateTimeValue(new Date(Date.now() + 60 * 1000).toISOString());
+  input.max = toLocalDateTimeValue(new Date(Date.now() + maxScheduleYears * 365 * 24 * 60 * 60 * 1000).toISOString());
+  const fallback = state.unlockAt && Date.parse(state.unlockAt) > Date.now()
+    ? state.unlockAt
+    : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  input.value = toLocalDateTimeValue(fallback);
+  await updateGeneratedLink(fallback);
+  input.focus({ preventScroll: true });
+  showToast("나중에 열리는 링크로 바꿨어요.");
+}
+
+async function updateResultSchedule(event) {
+  const chosen = new Date(event.target.value);
+  const safeUnlockAt = Number.isFinite(chosen.getTime()) ? cleanUnlockAt(chosen.toISOString()) : null;
+  if (!safeUnlockAt || Date.parse(safeUnlockAt) <= Date.now()) {
+    event.target.focus();
+    return showToast("현재보다 뒤의 공개 시각을 선택해 주세요.");
+  }
+  await updateGeneratedLink(safeUnlockAt);
+  showToast("편지가 열리는 날짜를 바꿨어요.");
 }
 
 function renderPreview() {
@@ -659,6 +717,8 @@ function initEditor() {
   $("#createLinkMobile").addEventListener("click", createShareLink);
   $$('[data-delivery-choice]').forEach((button) => button.addEventListener("click", () => setDeliveryChoice(button.dataset.deliveryChoice)));
   $("#finalizeShareLink").addEventListener("click", finalizeShareLink);
+  $("#resultScheduleEnabled").addEventListener("change", toggleResultSchedule);
+  $("#resultUnlockAt").addEventListener("change", updateResultSchedule);
   $("#copyLink").addEventListener("click", async () => {
     const link = $("#shareLink").value;
     try { await navigator.clipboard.writeText(link); } catch { $("#shareLink").select(); document.execCommand("copy"); }

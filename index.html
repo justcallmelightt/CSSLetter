@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="마음을 고르고, 편지지를 만들고, 링크로 전하는 온라인 편지 스튜디오 CSSLetter" />
-  <meta name="theme-color" content="#f5f5f7" />
+  <meta name="theme-color" content="#f1f2f0" />
   <meta name="referrer" content="no-referrer" />
   <meta property="og:title" content="CSSLetter — 마음을 디자인하는 편지" />
   <meta property="og:description" content="나만의 편지지에 마음을 쓰고, 읽기 링크로 전해보세요." />
@@ -13,7 +13,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <script src="./tour-boot.js"></script>
   <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="./style.css?v=20261014-studio" />
+  <link rel="stylesheet" href="./style.css?v=20261014-editorial" />
   <title>CSSLetter — 마음을 디자인하는 편지</title>
 </head>
 <body>
@@ -42,8 +42,9 @@
     <main class="studio">
       <aside class="control-panel" aria-label="편지 설정">
         <div class="panel-heading">
-          <h1>어떤 마음으로<br />전하고 싶나요?</h1>
-          <p>편지지를 고르고, 나다운 분위기로 다듬어보세요.</p>
+          <span class="panel-kicker">편지 꾸미기</span>
+          <h1>마음을 담을<br />종이를 고르세요.</h1>
+          <p>옆의 편지를 쓰면서 분위기를 바로 바꿀 수 있어요.</p>
         </div>
 
         <div class="tabs" role="tablist" aria-label="편지지 설정 방식">
@@ -114,12 +115,13 @@
           </div>
         </section>
 
-        <div class="draft-note"><i data-lucide="hard-drive" aria-hidden="true"></i><span>작성 내용은 서버가 아닌 이 브라우저에만 저장돼요.</span></div>
+        <div class="draft-note"><i data-lucide="hard-drive" aria-hidden="true"></i><span>작성 내용은 이 브라우저에 자동 저장돼요.</span></div>
       </aside>
 
       <section class="workbench" aria-label="편지 작성 영역">
         <div class="workbench-bar">
-          <div><span class="status-dot"></span><span>나의 편지</span><small id="saveStatus">저장됨</small></div>
+          <div class="draft-identity"><span class="status-dot"></span><span>나의 편지</span><small id="saveStatus">저장됨</small></div>
+          <div class="writing-progress" id="writingProgress" aria-label="편지 작성 상태"><span data-writing-step="recipient">받는 사람</span><span data-writing-step="body">내용</span><span data-writing-step="sender">보내는 사람</span></div>
           <div class="workbench-actions">
             <button id="clearLetter" type="button" title="내용 지우기" aria-label="내용 지우기"><i data-lucide="trash-2"></i></button>
             <button id="togglePreview" type="button"><i data-lucide="eye"></i><span>미리보기</span></button>
@@ -127,6 +129,7 @@
         </div>
 
         <div class="letter-stage">
+          <p class="editor-error" id="editorError" role="status" aria-live="polite" hidden></p>
           <article class="letter-paper theme-cream" id="letterPaper">
             <div class="paper-accent" aria-hidden="true"><span></span></div>
             <div class="letter-fields">
@@ -138,8 +141,9 @@
               <textarea class="body-field" id="letterBody" maxlength="5000" placeholder="천천히, 전하고 싶었던 마음을 적어보세요.&#10;&#10;사소한 안부도, 오래 품었던 이야기라도 좋아요."></textarea>
               <label class="sender-field"><span>From.</span><input id="sender" maxlength="40" placeholder="보내는 사람" autocomplete="off" /></label>
             </div>
-            <footer class="paper-footer"><span id="letterDate"></span><span>made with CSSLetter</span></footer>
+            <footer class="paper-footer"><span id="letterDate"></span><span>CSSLetter</span></footer>
           </article>
+          <div class="stage-footer"><span id="writingHint">받는 사람을 적으며 시작해보세요.</span><span id="letterLength">0 / 5,000자</span></div>
         </div>
 
         <div class="mobile-create-wrap">
@@ -160,6 +164,7 @@
         <p>To. <strong id="lockedRecipient">당신</strong></p>
         <h1 id="lockedTitle">아직 열리지 않은<br />편지가 도착했어요.</h1>
         <div class="arrival-countdown" id="arrivalCountdown" role="timer" aria-live="off" aria-label="편지가 열리기까지 남은 시간">
+          <div class="countdown-days"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="days"><b aria-hidden="true">0</b><b aria-hidden="true">0</b></span></span><span aria-hidden="true">일</span></div>
           <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="hours"><b aria-hidden="true">00</b><b aria-hidden="true">00</b></span></span></div>
           <i>:</i>
           <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="minutes"><b aria-hidden="true">00</b><b aria-hidden="true">00</b></span></span></div>
@@ -187,7 +192,7 @@
           <div class="reader-body" id="readBody"></div>
           <p class="reader-from">From. <strong id="readSender"></strong></p>
         </div>
-        <footer class="paper-footer"><span id="readDate"></span><span>made with CSSLetter</span></footer>
+        <footer class="paper-footer"><span id="readDate"></span><span>CSSLetter</span></footer>
       </article>
       <a class="write-own" href="./"><i data-lucide="pen-line"></i> 나도 편지 쓰기</a>
     </div>
@@ -207,8 +212,8 @@
     <section class="modal-card link-card" role="dialog" aria-modal="true" aria-label="읽기 링크 만들기">
       <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
       <div class="link-setup" id="linkSetup">
-        <h2 id="linkTitle">언제 열 수 있게<br />보낼까요?</h2>
-        <p>마지막으로 편지가 열리는 순간을 정해주세요.</p>
+        <h2 id="linkTitle">언제 열어볼 수<br />있게 할까요?</h2>
+        <p>지금 전할지, 날짜를 정해 기다리게 할지 선택하세요.</p>
         <div class="delivery-choice" role="radiogroup" aria-label="편지 공개 방식">
           <button id="scheduleChoiceNow" class="delivery-choice-button is-selected" type="button" role="radio" aria-checked="true" data-delivery-choice="now"><i data-lucide="send"></i><span><strong>지금 바로</strong><small>링크를 받으면 바로 열어요</small></span></button>
           <button id="scheduleChoiceLater" class="delivery-choice-button" type="button" role="radio" aria-checked="false" data-delivery-choice="later"><i data-lucide="clock-3"></i><span><strong>날짜 정하기</strong><small>정한 순간까지 카운트다운해요</small></span></button>
@@ -227,8 +232,8 @@
       </div>
       <div class="link-result" id="linkResult" hidden>
         <span class="success-icon"><i data-lucide="link-2"></i></span>
-        <h2>읽기 링크가<br />만들어졌어요.</h2>
-        <p><strong id="linkRecipient">받는 사람</strong>에게 아래 링크를 보내면, 편지를 예쁘게 열어볼 수 있어요.</p>
+        <h2 id="linkResultTitle" tabindex="-1">편지를 보낼<br />준비가 됐어요.</h2>
+        <p><strong id="linkRecipient">받는 사람</strong>에게 링크를 전해주세요.</p>
         <section class="result-delivery" aria-labelledby="resultDeliveryTitle">
           <div class="result-delivery-heading">
             <span class="result-delivery-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span>
@@ -290,6 +295,6 @@
   <script src="./assets/vendor/supabase-2.110.8.min.js"></script>
   <script src="./studio-experience.js" defer></script>
   <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
-  <script src="./script.js?v=20261014-studio"></script>
+  <script src="./script.js?v=20261014-editorial"></script>
 </body>
 </html>

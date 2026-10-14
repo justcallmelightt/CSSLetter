@@ -52,6 +52,7 @@ let specialPopupTimer;
 let readerCountdownTimer;
 let deliveryChoice = "now";
 let letterPaperAnimation = null;
+let modalReturnFocus = null;
 
 function cleanString(value, maxLength) {
   return typeof value === "string" ? value.slice(0, maxLength) : "";
@@ -251,11 +252,11 @@ function animateLetterPaperChange() {
   const computed = getComputedStyle(paper);
   const start = letterPaperAnimation
     ? { opacity: computed.opacity, transform: computed.transform }
-    : { opacity: 0.82, transform: "translateY(5px) scale(.994)" };
+    : { opacity: 0.9, transform: "perspective(1200px) rotateY(-2deg) rotateZ(-.3deg)" };
   letterPaperAnimation?.cancel();
   letterPaperAnimation = paper.animate(
-    [start, { opacity: 1, transform: "translateY(0) scale(1)" }],
-    { duration: 360, easing: "cubic-bezier(.2, .75, .25, 1)", fill: "none" },
+    [start, { opacity: 1, transform: "perspective(1200px) rotateY(0) rotateZ(0)" }],
+    { duration: 460, easing: "cubic-bezier(.2, .75, .25, 1)", fill: "none" },
   );
 }
 
@@ -277,6 +278,34 @@ function applyState() {
     button.setAttribute("aria-pressed", String(selected));
   });
   renderCustomPapers();
+  updateWritingProgress();
+}
+
+function updateWritingProgress() {
+  const fields = [
+    ["recipient", state.recipient.trim()],
+    ["body", state.body.trim()],
+    ["sender", state.sender.trim()],
+  ];
+  fields.forEach(([key, value]) => {
+    $(`[data-writing-step="${key}"]`).classList.toggle("is-complete", Boolean(value));
+  });
+  const next = fields.find(([, value]) => !value)?.[0];
+  const hints = {
+    recipient: "받는 사람을 적으며 시작해보세요.",
+    body: "이제 전하고 싶은 이야기를 써보세요.",
+    sender: "마지막으로 보내는 사람을 적어주세요.",
+  };
+  $("#writingHint").textContent = hints[next] || "이제 읽기 링크를 만들 수 있어요.";
+  $("#letterLength").textContent = `${state.body.length.toLocaleString("ko-KR")} / 5,000자`;
+}
+
+function showEditorError(field, message) {
+  const error = $("#editorError");
+  error.textContent = message;
+  error.hidden = false;
+  $(`#${field}`).setAttribute("aria-invalid", "true");
+  $(`#${field}`).focus();
 }
 
 function toLocalDateTimeValue(isoValue) {
@@ -431,9 +460,11 @@ function setProgressStep(step) {
 
 function openModal(id) {
   const modal = $(id);
+  modalReturnFocus = document.activeElement;
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
+  modal.querySelector(".modal-close")?.focus({ preventScroll: true });
 }
 
 function closeModal(modal) {
@@ -441,6 +472,8 @@ function closeModal(modal) {
   modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
   if (modal.id === "linkModal") setProgressStep($("#linkResult").hidden ? 1 : 3);
+  if (modalReturnFocus?.isConnected) modalReturnFocus.focus({ preventScroll: true });
+  modalReturnFocus = null;
 }
 
 function bytesToBase64Url(bytes) {
@@ -509,9 +542,10 @@ async function decodeLetter(value) {
 }
 
 function validateLetter() {
-  if (!state.recipient.trim()) { $("#recipient").focus(); showToast("받는 사람의 이름을 적어주세요."); return false; }
-  if (!state.body.trim()) { $("#letterBody").focus(); showToast("전하고 싶은 마음을 조금만 적어주세요."); return false; }
-  if (!state.sender.trim()) { $("#sender").focus(); showToast("보내는 사람의 이름을 적어주세요."); return false; }
+  if (!state.recipient.trim()) { showEditorError("recipient", "받는 사람의 이름을 적어주세요."); return false; }
+  if (!state.body.trim()) { showEditorError("letterBody", "편지 내용을 적어주세요."); return false; }
+  if (!state.sender.trim()) { showEditorError("sender", "보내는 사람의 이름을 적어주세요."); return false; }
+  $("#editorError").hidden = true;
   return true;
 }
 
@@ -654,6 +688,7 @@ async function finalizeShareLink() {
   $("#linkSetup").hidden = true;
   $("#linkResult").hidden = false;
   setProgressStep(3);
+  $("#linkResultTitle").focus({ preventScroll: true });
 }
 
 async function toggleResultSchedule(event) {
@@ -711,7 +746,7 @@ function populateReaderLetter(letter) {
 
 function setCountdownValue(name, value, animate) {
   const roll = $(`[data-countdown="${name}"]`);
-  const formatted = String(value).padStart(2, "0");
+  const formatted = name === "days" ? String(value) : String(value).padStart(2, "0");
   const current = roll.children[0];
   const next = roll.children[1];
   if (roll.dataset.value === formatted) return;
@@ -766,13 +801,15 @@ function startReaderCountdown(letter) {
     const remaining = Math.max(0, unlockTime - Date.now());
     if (remaining <= 0) return revealScheduledLetter(letter);
     const totalSeconds = Math.ceil(remaining / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
+    setCountdownValue("days", days, animate);
     setCountdownValue("hours", hours, animate);
     setCountdownValue("minutes", minutes, animate);
     setCountdownValue("seconds", seconds, animate);
-    $("#arrivalCountdown").setAttribute("aria-label", `편지가 열리기까지 ${hours}시간 ${minutes}분 ${seconds}초`);
+    $("#arrivalCountdown").setAttribute("aria-label", `편지가 열리기까지 ${days}일 ${hours}시간 ${minutes}분 ${seconds}초`);
   };
   update(false);
   readerCountdownTimer = setInterval(update, 250);
@@ -828,6 +865,8 @@ function initEditor() {
     $(`#${id}`).addEventListener("input", (event) => {
       const key = id === "letterTitle" ? "title" : id === "letterBody" ? "body" : id;
       state[key] = event.target.value;
+      event.target.removeAttribute("aria-invalid");
+      $("#editorError").hidden = true;
       if (state.futureSelf && ["recipient", "sender"].includes(key)) {
         state.futureSelf = false;
         state.futureSelfBackup = null;
@@ -836,6 +875,7 @@ function initEditor() {
         futureSelfButton.setAttribute("aria-label", "미래의 나에게 쓰기");
         futureSelfButton.querySelector("span").textContent = "나에게 쓰기";
       }
+      updateWritingProgress();
       saveDraft();
     });
   });
@@ -959,8 +999,22 @@ function initCommon() {
   $$('[data-close-modal]').forEach((element) => element.addEventListener("click", () => closeModal(element.closest(".modal"))));
   $("#enableArrivalNotification").addEventListener("click", enableArrivalNotification);
   document.addEventListener("keydown", (event) => {
+    const openDialog = $(".modal.is-open .modal-card");
     if (event.key === "Escape") $$(".modal.is-open").forEach(closeModal);
-    if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && !$("#editorApp").hidden) createShareLink();
+    if (event.key === "Tab" && openDialog) {
+      const focusable = $$('button:not([disabled]):not([hidden]), input:not([disabled]):not([hidden]), [tabindex="0"]', openDialog)
+        .filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (first && last && event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (first && last && !event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && !$("#editorApp").hidden && !$(".modal.is-open")) createShareLink();
   });
   window.lucide?.createIcons();
 }

@@ -13,7 +13,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <script src="./tour-boot.js"></script>
   <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=20261014-studio" />
   <title>CSSLetter — 마음을 디자인하는 편지</title>
 </head>
 <body>
@@ -23,9 +23,9 @@
         <span class="brand-name">CSSLetter</span>
       </a>
       <div class="progress" aria-label="편지 작성 단계">
-        <span class="is-active"><b>1</b>편지 쓰기</span><i></i>
-        <span><b>2</b>링크 만들기</span><i></i>
-        <span><b>3</b>마음 전하기</span>
+        <span class="is-active" data-progress-step="1" aria-current="step"><b>1</b>편지 쓰기</span><i aria-hidden="true"></i>
+        <span data-progress-step="2"><b>2</b>링크 만들기</span><i aria-hidden="true"></i>
+        <span data-progress-step="3"><b>3</b>마음 전하기</span>
       </div>
       <div class="studio-header-actions">
         <div class="tools-menu">
@@ -130,7 +130,10 @@
           <article class="letter-paper theme-cream" id="letterPaper">
             <div class="paper-accent" aria-hidden="true"><span></span></div>
             <div class="letter-fields">
-              <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
+              <div class="recipient-row">
+                <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
+                <button id="futureLetterStart" class="future-letter-trigger" type="button" aria-pressed="false" aria-label="미래의 나에게 쓰기"><i data-lucide="calendar-heart" aria-hidden="true"></i><span>나에게 쓰기</span></button>
+              </div>
               <input class="title-field" id="letterTitle" maxlength="80" placeholder="편지의 제목을 적어주세요" autocomplete="off" />
               <textarea class="body-field" id="letterBody" maxlength="5000" placeholder="천천히, 전하고 싶었던 마음을 적어보세요.&#10;&#10;사소한 안부도, 오래 품었던 이야기라도 좋아요."></textarea>
               <label class="sender-field"><span>From.</span><input id="sender" maxlength="40" placeholder="보내는 사람" autocomplete="off" /></label>
@@ -154,15 +157,14 @@
     <header class="reader-header"><a class="brand" href="./"><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
     <div class="reader-intro" id="readerIntro">
       <section class="reader-locked" id="readerLocked" hidden aria-labelledby="lockedTitle">
-        <span class="locked-mark" aria-hidden="true"><i data-lucide="lock-keyhole"></i></span>
         <p>To. <strong id="lockedRecipient">당신</strong></p>
         <h1 id="lockedTitle">아직 열리지 않은<br />편지가 도착했어요.</h1>
         <div class="arrival-countdown" id="arrivalCountdown" role="timer" aria-live="off" aria-label="편지가 열리기까지 남은 시간">
-          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="hours"><b>00</b><b>00</b></span></span><small>시간</small></div>
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="hours"><b aria-hidden="true">00</b><b aria-hidden="true">00</b></span></span></div>
           <i>:</i>
-          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="minutes"><b>00</b><b>00</b></span></span><small>분</small></div>
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="minutes"><b aria-hidden="true">00</b><b aria-hidden="true">00</b></span></span></div>
           <i>:</i>
-          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="seconds"><b>00</b><b>00</b></span></span><small>초</small></div>
+          <div class="countdown-unit"><span class="countdown-roll-window"><span class="countdown-roll" data-countdown="seconds"><b aria-hidden="true">00</b><b aria-hidden="true">00</b></span></span></div>
         </div>
         <time id="unlockAtLabel"></time>
         <button id="enableArrivalNotification" class="notification-action" type="button"><i data-lucide="bell"></i><span>열리면 알려주세요</span></button>
@@ -205,7 +207,6 @@
     <section class="modal-card link-card" role="dialog" aria-modal="true" aria-label="읽기 링크 만들기">
       <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
       <div class="link-setup" id="linkSetup">
-        <span class="success-icon"><i data-lucide="calendar-clock"></i></span>
         <h2 id="linkTitle">언제 열 수 있게<br />보낼까요?</h2>
         <p>마지막으로 편지가 열리는 순간을 정해주세요.</p>
         <div class="delivery-choice" role="radiogroup" aria-label="편지 공개 방식">
@@ -214,6 +215,11 @@
         </div>
         <div class="share-schedule-options" id="shareScheduleOptions" hidden>
           <label for="shareUnlockAt">편지가 열리는 날짜와 시간</label>
+          <div class="schedule-presets" role="group" aria-label="빠른 공개 날짜 선택">
+            <button type="button" data-schedule-preset="1month">1개월 뒤</button>
+            <button type="button" data-schedule-preset="6months">6개월 뒤</button>
+            <button type="button" data-schedule-preset="1year">1년 뒤</button>
+          </div>
           <input id="shareUnlockAt" type="datetime-local" />
           <p><i data-lucide="info" aria-hidden="true"></i> 예약 전까지 받는 화면에서 내용을 숨겨요. 링크 자체를 암호화하는 기능은 아니에요.</p>
         </div>
@@ -241,6 +247,11 @@
         <label class="link-field"><input id="shareLink" readonly /><button id="copyLink" type="button"><i data-lucide="copy"></i><span>복사</span></button></label>
         <small class="link-security-note"><i data-lucide="shield-alert"></i><span>편지 내용은 링크 안에 저장돼요. 비밀번호나 민감한 개인정보는 적지 마세요.</span></small>
         <div class="link-actions"><button id="shareNative" class="primary-action" type="button"><i data-lucide="share-2"></i> 공유하기</button><button id="openSharedLetter" class="secondary-action" type="button">받는 화면 확인 <i data-lucide="arrow-up-right"></i></button><button class="secondary-action" type="button" data-close-modal>편지 더 다듬기</button></div>
+        <section class="calendar-reminder" id="calendarReminder" hidden aria-labelledby="calendarReminderTitle">
+          <div><strong id="calendarReminderTitle">그날 잊지 않도록 알림 받기</strong><small>캘린더 일정 파일에 편지 링크가 포함돼요.</small></div>
+          <button id="downloadCalendarReminder" type="button"><i data-lucide="calendar-plus" aria-hidden="true"></i> 일정 파일 받기</button>
+          <p>캘린더 앱에 추가하면 브라우저를 닫아도 알림을 받을 수 있어요. 캘린더 알림 설정에 따라 전달되며, 일정에는 편지 링크가 저장됩니다.</p>
+        </section>
       </div>
     </section>
   </div>
@@ -279,6 +290,6 @@
   <script src="./assets/vendor/supabase-2.110.8.min.js"></script>
   <script src="./studio-experience.js" defer></script>
   <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
-  <script src="./script.js"></script>
+  <script src="./script.js?v=20261014-studio"></script>
 </body>
 </html>

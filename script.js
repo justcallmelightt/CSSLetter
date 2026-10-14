@@ -36,6 +36,8 @@ const defaultState = {
   title: "",
   body: "",
   sender: "",
+  futureSelf: false,
+  futureSelfBackup: null,
   unlockAt: null,
   style: { ...templates.cream },
   date: new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date()),
@@ -49,6 +51,7 @@ let toastTimer;
 let specialPopupTimer;
 let readerCountdownTimer;
 let deliveryChoice = "now";
+let letterPaperAnimation = null;
 
 function cleanString(value, maxLength) {
   return typeof value === "string" ? value.slice(0, maxLength) : "";
@@ -176,6 +179,14 @@ function sanitizeLetter(raw, { requireContent = false } = {}) {
     title: cleanString(raw.title, limits.title),
     body: cleanString(raw.body, limits.body),
     sender: cleanString(raw.sender, limits.sender),
+    futureSelf: raw.futureSelf === true,
+    futureSelfBackup: raw.futureSelfBackup && typeof raw.futureSelfBackup === "object" && !Array.isArray(raw.futureSelfBackup)
+      ? {
+          recipient: cleanString(raw.futureSelfBackup.recipient, limits.recipient),
+          sender: cleanString(raw.futureSelfBackup.sender, limits.sender),
+          title: cleanString(raw.futureSelfBackup.title, limits.title),
+        }
+      : null,
     unlockAt: cleanUnlockAt(raw.unlockAt),
     date: cleanString(raw.date, limits.date) || defaultState.date,
     style: {
@@ -231,11 +242,32 @@ function setPaperStyle(element, style, template = "custom") {
   element.style.setProperty("--letter-leading", style.leading);
 }
 
+function animateLetterPaperChange() {
+  const paper = $("#letterPaper");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    paper.animate?.([{ opacity: 0.68 }, { opacity: 1 }], { duration: 150, easing: "ease-out" });
+    return;
+  }
+  const computed = getComputedStyle(paper);
+  const start = letterPaperAnimation
+    ? { opacity: computed.opacity, transform: computed.transform }
+    : { opacity: 0.82, transform: "translateY(5px) scale(.994)" };
+  letterPaperAnimation?.cancel();
+  letterPaperAnimation = paper.animate(
+    [start, { opacity: 1, transform: "translateY(0) scale(1)" }],
+    { duration: 360, easing: "cubic-bezier(.2, .75, .25, 1)", fill: "none" },
+  );
+}
+
 function applyState() {
   $("#recipient").value = state.recipient;
   $("#letterTitle").value = state.title;
   $("#letterBody").value = state.body;
   $("#sender").value = state.sender;
+  const futureSelfButton = $("#futureLetterStart");
+  futureSelfButton.setAttribute("aria-pressed", String(state.futureSelf));
+  futureSelfButton.setAttribute("aria-label", state.futureSelf ? "미래의 나에게 쓰기 취소" : "미래의 나에게 쓰기");
+  futureSelfButton.querySelector("span").textContent = state.futureSelf ? "취소" : "나에게 쓰기";
   $("#letterDate").textContent = state.date;
   setPaperStyle($("#letterPaper"), state.style, state.template);
   syncCustomControls();
@@ -251,6 +283,65 @@ function toLocalDateTimeValue(isoValue) {
   const date = isoValue ? new Date(isoValue) : new Date(Date.now() + 24 * 60 * 60 * 1000);
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
   return local.toISOString().slice(0, 16);
+}
+
+function scheduleDateFromNow(preset) {
+  const date = new Date();
+  const day = date.getDate();
+  if (preset === "1year") {
+    date.setFullYear(date.getFullYear() + 1);
+    if (date.getDate() !== day) date.setDate(0);
+    return date;
+  }
+  const months = preset === "6months" ? 6 : 1;
+  date.setDate(1);
+  date.setMonth(date.getMonth() + months);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  date.setDate(Math.min(day, lastDay));
+  return date;
+}
+
+function startFutureLetter() {
+  if (state.futureSelf) {
+    const backup = state.futureSelfBackup;
+    if (state.recipient === "미래의 나") state.recipient = backup?.recipient || "";
+    if (state.sender === "오늘의 나") state.sender = backup?.sender || "";
+    if (state.title === "미래의 나에게" && backup?.title !== undefined) state.title = backup.title;
+    state.futureSelf = false;
+    state.futureSelfBackup = null;
+    state.unlockAt = null;
+    deliveryChoice = "now";
+    applyState();
+    saveDraft();
+    showToast("미래 편지 모드를 껐어요. 이미 쓴 내용은 그대로 두었어요.");
+    return;
+  }
+  state.futureSelfBackup = {
+    recipient: state.recipient,
+    sender: state.sender,
+    title: state.title,
+  };
+  state.futureSelf = true;
+  state.recipient = "미래의 나";
+  state.sender = "오늘의 나";
+  if (!state.title.trim()) state.title = "미래의 나에게";
+  state.unlockAt = null;
+  deliveryChoice = "now";
+  applyState();
+  saveDraft();
+  showToast("받는 사람과 보낸 사람을 채웠어요. 전달 시점은 링크 만들기에서 선택해요.");
+  $("#letterBody").focus({ preventScroll: true });
+}
+
+function setSchedulePreset(preset) {
+  const date = scheduleDateFromNow(preset);
+  const input = $("#shareUnlockAt");
+  input.value = toLocalDateTimeValue(date.toISOString());
+  $$("[data-schedule-preset]").forEach((button) => {
+    const selected = button.dataset.schedulePreset === preset;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function setDeliveryChoice(choice) {
@@ -327,6 +418,17 @@ function setTab(name) {
   $$(".tab-panel").forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === name));
 }
 
+function setProgressStep(step) {
+  $$("[data-progress-step]").forEach((item) => {
+    const itemStep = Number(item.dataset.progressStep);
+    const active = itemStep === step;
+    item.classList.toggle("is-active", active);
+    item.classList.toggle("is-complete", itemStep < step);
+    if (active) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+}
+
 function openModal(id) {
   const modal = $(id);
   modal.classList.add("is-open");
@@ -338,6 +440,7 @@ function closeModal(modal) {
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+  if (modal.id === "linkModal") setProgressStep($("#linkResult").hidden ? 1 : 3);
 }
 
 function bytesToBase64Url(bytes) {
@@ -425,6 +528,7 @@ function createShareLink() {
   $("#linkSetup").hidden = false;
   $("#linkResult").hidden = true;
   prepareDeliveryStep();
+  setProgressStep(2);
   openModal("#linkModal");
 }
 
@@ -443,6 +547,7 @@ function syncResultSchedule(unlockAt) {
   input.max = toLocalDateTimeValue(new Date(Date.now() + maxScheduleYears * 365 * 24 * 60 * 60 * 1000).toISOString());
   input.value = toLocalDateTimeValue(unlockAt);
   $("#linkDeliverySummary").textContent = formatDeliverySummary(unlockAt);
+  $("#calendarReminder").hidden = !unlockAt;
 }
 
 async function updateGeneratedLink(unlockAt) {
@@ -459,8 +564,75 @@ async function updateGeneratedLink(unlockAt) {
   $("#shareLink").value = `${getShareBaseUrl()}#letter=${encoded}`;
   $("#linkRecipient").textContent = state.recipient;
   $("#linkDeliverySummary").textContent = formatDeliverySummary(unlockAt);
+  $("#calendarReminder").hidden = !unlockAt;
   saveDraft();
   return true;
+}
+
+function escapeICalendarText(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/\r?\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}
+
+function foldICalendarLine(line) {
+  const chunks = [];
+  let current = "";
+  let byteLength = 0;
+  for (const character of line) {
+    const size = new TextEncoder().encode(character).length;
+    if (byteLength + size > 72) {
+      chunks.push(current);
+      current = ` ${character}`;
+      byteLength = 1 + size;
+    } else {
+      current += character;
+      byteLength += size;
+    }
+  }
+  chunks.push(current);
+  return chunks.join("\r\n");
+}
+
+function downloadCalendarReminder() {
+  const unlockTime = Date.parse(state.unlockAt || "");
+  const link = $("#shareLink").value;
+  if (!Number.isFinite(unlockTime) || unlockTime <= Date.now() || !link) {
+    return showToast("먼저 미래에 열리는 편지 링크를 만들어주세요.");
+  }
+  const start = new Date(unlockTime);
+  const end = new Date(unlockTime + 10 * 60 * 1000);
+  const toICSDate = (date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const eventTitle = `${state.recipient || "미래의 나"}에게 쓴 편지 열어보기`;
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Lightframe//CSSLetter//KO",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${createLocalId()}@cssletter.local`,
+    `DTSTAMP:${toICSDate(new Date())}`,
+    `DTSTART:${toICSDate(start)}`,
+    `DTEND:${toICSDate(end)}`,
+    `SUMMARY:${escapeICalendarText(eventTitle)}`,
+    `DESCRIPTION:${escapeICalendarText("오늘의 내가 남긴 편지가 열리는 날이에요. 링크를 열어 편지를 확인해보세요.")}`,
+    `URL:${link}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "TRIGGER:PT0M",
+    `DESCRIPTION:${escapeICalendarText(eventTitle)}`,
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  const blob = new Blob([`${lines.map(foldICalendarLine).join("\r\n")}\r\n`], { type: "text/calendar;charset=utf-8" });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = `cssletter-${start.toISOString().slice(0, 10)}.ics`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  showToast("캘린더 알림 파일을 받았어요. 일정 앱에 추가해 주세요.");
 }
 
 async function finalizeShareLink() {
@@ -481,6 +653,7 @@ async function finalizeShareLink() {
   syncResultSchedule(safeUnlockAt);
   $("#linkSetup").hidden = true;
   $("#linkResult").hidden = false;
+  setProgressStep(3);
 }
 
 async function toggleResultSchedule(event) {
@@ -547,8 +720,16 @@ function setCountdownValue(name, value, animate) {
   current.textContent = roll.dataset.value || formatted;
   next.textContent = formatted;
   roll.dataset.value = formatted;
-  if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!animate || reduceMotion) {
     current.textContent = formatted;
+    if (animate && reduceMotion && typeof roll.animate === "function") {
+      roll._fadeAnimation?.cancel();
+      roll._fadeAnimation = roll.animate(
+        [{ opacity: 0.62 }, { opacity: 1 }],
+        { duration: 150, easing: "ease-out" },
+      );
+    }
     return;
   }
   void roll.offsetHeight;
@@ -642,10 +823,19 @@ function renderReader(letter) {
 
 function initEditor() {
   applyState();
+  $("#futureLetterStart").addEventListener("click", startFutureLetter);
   ["recipient", "letterTitle", "letterBody", "sender"].forEach((id) => {
     $(`#${id}`).addEventListener("input", (event) => {
       const key = id === "letterTitle" ? "title" : id === "letterBody" ? "body" : id;
       state[key] = event.target.value;
+      if (state.futureSelf && ["recipient", "sender"].includes(key)) {
+        state.futureSelf = false;
+        state.futureSelfBackup = null;
+        const futureSelfButton = $("#futureLetterStart");
+        futureSelfButton.setAttribute("aria-pressed", "false");
+        futureSelfButton.setAttribute("aria-label", "미래의 나에게 쓰기");
+        futureSelfButton.querySelector("span").textContent = "나에게 쓰기";
+      }
       saveDraft();
     });
   });
@@ -656,6 +846,7 @@ function initEditor() {
     state.template = button.dataset.template;
     state.style = { ...templates[state.template] };
     applyState();
+    animateLetterPaperChange();
     saveDraft();
     showSpecialPaperPopup(state.template);
   }));
@@ -675,6 +866,7 @@ function initEditor() {
       state.template = "custom";
       state.style = { ...paper.style };
       applyState();
+      animateLetterPaperChange();
       saveDraft();
       showToast(`‘${paper.name}’ 편지지를 적용했어요.`);
       return;
@@ -717,8 +909,16 @@ function initEditor() {
   $("#createLinkMobile").addEventListener("click", createShareLink);
   $$('[data-delivery-choice]').forEach((button) => button.addEventListener("click", () => setDeliveryChoice(button.dataset.deliveryChoice)));
   $("#finalizeShareLink").addEventListener("click", finalizeShareLink);
+  $$('[data-schedule-preset]').forEach((button) => button.addEventListener("click", () => setSchedulePreset(button.dataset.schedulePreset)));
+  $("#shareUnlockAt").addEventListener("input", () => {
+    $$('[data-schedule-preset]').forEach((button) => {
+      button.classList.remove("is-selected");
+      button.setAttribute("aria-pressed", "false");
+    });
+  });
   $("#resultScheduleEnabled").addEventListener("change", toggleResultSchedule);
   $("#resultUnlockAt").addEventListener("change", updateResultSchedule);
+  $("#downloadCalendarReminder").addEventListener("click", downloadCalendarReminder);
   $("#copyLink").addEventListener("click", async () => {
     const link = $("#shareLink").value;
     try { await navigator.clipboard.writeText(link); } catch { $("#shareLink").select(); document.execCommand("copy"); }

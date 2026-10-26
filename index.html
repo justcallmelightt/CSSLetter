@@ -132,7 +132,6 @@
             <div class="letter-fields">
               <div class="recipient-row">
                 <label class="recipient-field"><span>To.</span><input id="recipient" maxlength="40" placeholder="받는 사람의 이름" autocomplete="off" /></label>
-                <button id="futureLetterStart" class="future-letter-trigger" type="button" aria-pressed="false" aria-label="미래의 나에게 쓰기"><i data-lucide="calendar-heart" aria-hidden="true"></i><span>나에게 쓰기</span></button>
               </div>
               <input class="title-field" id="letterTitle" maxlength="80" placeholder="편지의 제목을 적어주세요" autocomplete="off" />
               <textarea class="body-field" id="letterBody" maxlength="5000" placeholder="천천히, 전하고 싶었던 마음을 적어보세요.&#10;&#10;사소한 안부도, 오래 품었던 이야기라도 좋아요."></textarea>
@@ -208,11 +207,16 @@
     <section class="modal-card link-card" role="dialog" aria-modal="true" aria-label="읽기 링크 만들기">
       <button class="modal-close" type="button" data-close-modal aria-label="닫기"><i data-lucide="x"></i></button>
       <div class="link-setup" id="linkSetup">
-        <h2 id="linkTitle">언제 열 수 있게<br />보낼까요?</h2>
+        <h2 id="linkTitle">언제 열 수 있게 보낼까요?</h2>
         <p>마지막으로 편지가 열리는 순간을 정해주세요.</p>
-        <div class="delivery-choice" role="radiogroup" aria-label="편지 공개 방식">
-          <button id="scheduleChoiceNow" class="delivery-choice-button is-selected" type="button" role="radio" aria-checked="true" data-delivery-choice="now"><i data-lucide="send"></i><span><strong>지금 바로</strong><small>링크를 받으면 바로 열어요</small></span></button>
-          <button id="scheduleChoiceLater" class="delivery-choice-button" type="button" role="radio" aria-checked="false" data-delivery-choice="later"><i data-lucide="clock-3"></i><span><strong>날짜 정하기</strong><small>정한 순간까지 카운트다운해요</small></span></button>
+        <div class="delivery-choice" role="group" aria-label="편지 공개 방식과 받는 사람">
+          <button id="scheduleChoiceNow" class="delivery-choice-button is-selected" type="button" aria-pressed="true" data-delivery-choice="now"><i data-lucide="send"></i><span><strong>지금 바로</strong><small>링크를 받으면 바로 열어요</small></span></button>
+          <button id="scheduleChoiceLater" class="delivery-choice-button" type="button" aria-pressed="false" data-delivery-choice="later"><i data-lucide="clock-3"></i><span><strong>날짜 정하기</strong><small>정한 순간까지 카운트다운해요</small></span></button>
+          <button id="futureLetterStart" class="delivery-choice-button future-letter-choice" type="button" aria-pressed="false">
+            <i data-lucide="calendar-heart" aria-hidden="true"></i>
+            <span><strong>미래의 나에게</strong><small>나에게 편지 보내기</small></span>
+            <i class="future-letter-check" data-lucide="check" aria-hidden="true"></i>
+          </button>
         </div>
         <div class="share-schedule-options" id="shareScheduleOptions" hidden>
           <label for="shareUnlockAt">편지가 열리는 날짜와 시간</label>

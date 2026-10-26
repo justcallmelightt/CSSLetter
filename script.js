@@ -266,8 +266,6 @@ function applyState() {
   $("#sender").value = state.sender;
   const futureSelfButton = $("#futureLetterStart");
   futureSelfButton.setAttribute("aria-pressed", String(state.futureSelf));
-  futureSelfButton.setAttribute("aria-label", state.futureSelf ? "미래의 나에게 쓰기 취소" : "미래의 나에게 쓰기");
-  futureSelfButton.querySelector("span").textContent = state.futureSelf ? "취소" : "나에게 쓰기";
   $("#letterDate").textContent = state.date;
   setPaperStyle($("#letterPaper"), state.style, state.template);
   syncCustomControls();
@@ -310,10 +308,8 @@ function startFutureLetter() {
     state.futureSelf = false;
     state.futureSelfBackup = null;
     state.unlockAt = null;
-    deliveryChoice = "now";
     applyState();
     saveDraft();
-    showToast("미래 편지 모드를 껐어요. 이미 쓴 내용은 그대로 두었어요.");
     return;
   }
   state.futureSelfBackup = {
@@ -326,11 +322,10 @@ function startFutureLetter() {
   state.sender = "오늘의 나";
   if (!state.title.trim()) state.title = "미래의 나에게";
   state.unlockAt = null;
-  deliveryChoice = "now";
   applyState();
   saveDraft();
-  showToast("받는 사람과 보낸 사람을 채웠어요. 전달 시점은 링크 만들기에서 선택해요.");
-  $("#letterBody").focus({ preventScroll: true });
+  setDeliveryChoice("later");
+  setSchedulePreset("1year");
 }
 
 function setSchedulePreset(preset) {
@@ -349,7 +344,7 @@ function setDeliveryChoice(choice) {
   $$('[data-delivery-choice]').forEach((button) => {
     const selected = button.dataset.deliveryChoice === deliveryChoice;
     button.classList.toggle("is-selected", selected);
-    button.setAttribute("aria-checked", String(selected));
+    button.setAttribute("aria-pressed", String(selected));
   });
   $("#shareScheduleOptions").hidden = deliveryChoice !== "later";
   if (deliveryChoice === "later") $("#shareUnlockAt").focus({ preventScroll: true });
@@ -524,7 +519,7 @@ function getShareBaseUrl() {
 }
 
 function createShareLink() {
-  if (!validateLetter()) return;
+  if (!state.body.trim()) { $("#letterBody").focus(); return showToast("전하고 싶은 마음을 조금만 적어주세요."); }
   $("#linkSetup").hidden = false;
   $("#linkResult").hidden = true;
   prepareDeliveryStep();
@@ -636,6 +631,11 @@ function downloadCalendarReminder() {
 }
 
 async function finalizeShareLink() {
+  if (!state.recipient.trim() || !state.sender.trim()) {
+    closeModal($("#linkModal"));
+    validateLetter();
+    return;
+  }
   let safeUnlockAt = null;
   if (deliveryChoice === "later") {
     const chosen = new Date($("#shareUnlockAt").value);
@@ -849,10 +849,7 @@ function initEditor() {
       if (state.futureSelf && ["recipient", "sender"].includes(key)) {
         state.futureSelf = false;
         state.futureSelfBackup = null;
-        const futureSelfButton = $("#futureLetterStart");
-        futureSelfButton.setAttribute("aria-pressed", "false");
-        futureSelfButton.setAttribute("aria-label", "미래의 나에게 쓰기");
-        futureSelfButton.querySelector("span").textContent = "나에게 쓰기";
+        $("#futureLetterStart").setAttribute("aria-pressed", "false");
       }
       saveDraft();
     });

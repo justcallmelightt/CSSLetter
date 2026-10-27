@@ -1085,7 +1085,7 @@ body { background: var(--bg); }
   @keyframes studio-panel-fade { from { opacity: .6; } to { opacity: 1; } }
 }
 
-.countdown-days { display: inline-flex; flex: 0 1 auto; align-items: baseline; gap: .12em; margin-right: clamp(5px, 1vw, 12px); color: var(--reader-ink); font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -.055em; }
+.countdown-days { display: inline-flex; flex: 0 1 auto; align-items: baseline; gap: .12em; margin-right: clamp(5px, 1vw, 12px); color: var(--reader-ink); font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1; letter-spacing: -.055em; }
 .countdown-days > span:last-child { flex: none; font-size: .42em; font-weight: 450; letter-spacing: 0; }
 .arrival-countdown { max-width: 100%; padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; white-space: nowrap; }
 .countdown-unit { min-width: 0; }
@@ -1093,11 +1093,11 @@ body { background: var(--bg); }
 .countdown-roll b { min-width: 2ch; }
 .arrival-countdown { gap: clamp(6px, 1vw, 12px); min-height: clamp(96px, 13vw, 128px); width: max-content; margin-inline: auto; padding: 18px clamp(18px, 3vw, 30px); }
 .countdown-roll-window { --countdown-row-height: clamp(44px, 7vw, 58px); height: var(--countdown-row-height); }
-.countdown-roll { display: inline-flex; height: var(--countdown-row-height); min-width: 0; flex-direction: row; font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 600; transform: none !important; transition: none !important; }
+.countdown-roll { display: inline-flex; height: var(--countdown-row-height); min-width: 0; flex-direction: row; font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 700; transform: none !important; transition: none !important; }
 .countdown-digit-window { display: block; flex: 0 0 .7em; width: .7em; height: var(--countdown-row-height); overflow: hidden; }
 .countdown-digit-track { display: flex; height: auto; flex-direction: column; transform: translateY(0); }
 .countdown-digit-track.is-rolling { transform: translateY(calc(-1 * var(--countdown-row-height))); transition: transform 420ms cubic-bezier(.2,.75,.25,1); }
-.countdown-digit-track b { display: grid; flex: 0 0 var(--countdown-row-height); width: 100%; min-width: 0; height: var(--countdown-row-height); padding: 0; place-items: center; font-size: 1em; font-weight: 600; letter-spacing: 0; }
+.countdown-digit-track b { display: grid; flex: 0 0 var(--countdown-row-height); width: 100%; min-width: 0; height: var(--countdown-row-height); padding: 0; place-items: center; font-size: 1em; font-weight: 700; letter-spacing: 0; }
 .countdown-days .countdown-roll-window { min-width: 0; }
 .reader-theme-cream { --notification-enabled-gradient: linear-gradient(125deg, #5b5144, #a78b68); }
 .reader-theme-blue { --notification-enabled-gradient: linear-gradient(125deg, #234f69, #69a4bb); }

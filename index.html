@@ -13,7 +13,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <script src="./tour-boot.js"></script>
   <link rel="preload" href="./assets/vendor/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="./style.css?v=20261015-icons" />
+  <link rel="stylesheet" href="./style.css?v=20261027-reader" />
   <title>CSSLetter — 마음을 디자인하는 편지</title>
 </head>
 <body>
@@ -156,6 +156,7 @@
     <header class="reader-header"><a class="brand" href="./"><span class="brand-name">CSSLetter</span></a><span>당신에게 도착한 편지</span></header>
     <div class="reader-intro" id="readerIntro">
       <section class="reader-locked" id="readerLocked" hidden aria-labelledby="lockedTitle">
+        <div class="envelope" aria-hidden="true"><span></span><i data-lucide="heart"></i></div>
         <p>To. <strong id="lockedRecipient">당신</strong></p>
         <h1 id="lockedTitle">아직 열리지 않은<br />편지가 도착했어요.</h1>
         <div class="arrival-countdown" id="arrivalCountdown" role="timer" aria-live="off" aria-label="편지가 열리기까지 남은 시간">
@@ -168,6 +169,7 @@
         </div>
         <time id="unlockAtLabel"></time>
         <button id="enableArrivalNotification" class="notification-action" type="button"><i data-lucide="bell"></i><span>열리면 알려주세요</span></button>
+        <small class="locked-sender">From. <span id="lockedSender">누군가</span></small>
         <small class="notification-note" id="notificationNote">이 페이지를 열어 둔 동안 알림을 받을 수 있어요.</small>
       </section>
       <section class="reader-arrival" id="readerArrival">
@@ -294,6 +296,6 @@
   <script src="./assets/vendor/supabase-2.110.8.min.js"></script>
   <script src="./studio-experience.js" defer></script>
   <script src="./assets/vendor/lucide-0.468.0.min.js"></script>
-  <script src="./script.js?v=20261015-icons"></script>
+  <script src="./script.js?v=20261027-reader"></script>
 </body>
 </html>

@@ -830,6 +830,7 @@ function renderReader(letter) {
   $("#readerArrival").hidden = isLocked;
   if (isLocked) {
     $("#lockedRecipient").textContent = letter.recipient || "당신";
+    $("#lockedSender").textContent = letter.sender || "누군가";
     $("#unlockAtLabel").dateTime = letter.unlockAt;
     $("#unlockAtLabel").textContent = new Intl.DateTimeFormat("ko-KR", { dateStyle: "long", timeStyle: "short" }).format(new Date(letter.unlockAt));
     startReaderCountdown(letter);

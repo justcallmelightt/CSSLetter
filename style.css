@@ -813,6 +813,7 @@ a:focus-visible {
 .reader-arrival > h1,
 .reader-locked > h1 { margin-bottom: 27px; font-size: clamp(34px, 6vw, 52px); font-weight: 770; line-height: 1.12; letter-spacing: -.065em; }
 .reader-arrival > small { margin-top: 18px; color: var(--reader-muted); font-size: 8px; font-weight: 650; letter-spacing: .11em; }
+.reader-locked > .locked-sender { margin-top: 18px; color: var(--reader-muted); font-size: 8px; font-weight: 650; letter-spacing: .11em; }
 .reader-arrival.has-arrived { animation: arrival-reveal 700ms var(--ease) both; }
 .arrival-countdown { display: flex; align-items: center; justify-content: center; margin: 0 0 18px; }
 .countdown-unit { display: grid; min-width: clamp(62px, 12vw, 90px); place-items: center; }
@@ -1084,7 +1085,7 @@ body { background: var(--bg); }
   @keyframes studio-panel-fade { from { opacity: .6; } to { opacity: 1; } }
 }
 
-.countdown-days { display: inline-flex; flex: 0 1 auto; align-items: baseline; gap: .12em; margin-right: clamp(5px, 1vw, 12px); color: var(--reader-ink); font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 520; line-height: 1; letter-spacing: -.055em; }
+.countdown-days { display: inline-flex; flex: 0 1 auto; align-items: baseline; gap: .12em; margin-right: clamp(5px, 1vw, 12px); color: var(--reader-ink); font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1; letter-spacing: -.055em; }
 .countdown-days > span:last-child { flex: none; font-size: .42em; font-weight: 450; letter-spacing: 0; }
 .arrival-countdown { max-width: 100%; padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; white-space: nowrap; }
 .countdown-unit { min-width: 0; }
@@ -1092,11 +1093,11 @@ body { background: var(--bg); }
 .countdown-roll b { min-width: 2ch; }
 .arrival-countdown { gap: clamp(6px, 1vw, 12px); min-height: clamp(96px, 13vw, 128px); width: max-content; margin-inline: auto; padding: 18px clamp(18px, 3vw, 30px); }
 .countdown-roll-window { --countdown-row-height: clamp(44px, 7vw, 58px); height: var(--countdown-row-height); }
-.countdown-roll { display: inline-flex; height: var(--countdown-row-height); min-width: 0; flex-direction: row; font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 520; transform: none !important; transition: none !important; }
+.countdown-roll { display: inline-flex; height: var(--countdown-row-height); min-width: 0; flex-direction: row; font-size: clamp(25px, 6vw, 46px); font-variant-numeric: tabular-nums; font-weight: 600; transform: none !important; transition: none !important; }
 .countdown-digit-window { display: block; flex: 0 0 .7em; width: .7em; height: var(--countdown-row-height); overflow: hidden; }
 .countdown-digit-track { display: flex; height: auto; flex-direction: column; transform: translateY(0); }
 .countdown-digit-track.is-rolling { transform: translateY(calc(-1 * var(--countdown-row-height))); transition: transform 420ms cubic-bezier(.2,.75,.25,1); }
-.countdown-digit-track b { display: grid; flex: 0 0 var(--countdown-row-height); width: 100%; min-width: 0; height: var(--countdown-row-height); padding: 0; place-items: center; font-size: 1em; letter-spacing: 0; }
+.countdown-digit-track b { display: grid; flex: 0 0 var(--countdown-row-height); width: 100%; min-width: 0; height: var(--countdown-row-height); padding: 0; place-items: center; font-size: 1em; font-weight: 600; letter-spacing: 0; }
 .countdown-days .countdown-roll-window { min-width: 0; }
 .reader-theme-cream { --notification-enabled-gradient: linear-gradient(125deg, #5b5144, #a78b68); }
 .reader-theme-blue { --notification-enabled-gradient: linear-gradient(125deg, #234f69, #69a4bb); }
@@ -1104,7 +1105,10 @@ body { background: var(--bg); }
 .reader-theme-dot { --notification-enabled-gradient: linear-gradient(125deg, #744a3b, #c78368); }
 .reader-theme-flower { --notification-enabled-gradient: linear-gradient(125deg, #963c67, #e47ca8); }
 .reader-theme-cute { --notification-enabled-gradient: linear-gradient(125deg, #6749a0, #bd83df); }
-#enableArrivalNotification { color: #fff !important; background: var(--notification-enabled-gradient, linear-gradient(125deg, #333, #666)) !important; border-color: rgba(255,255,255,.32) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--reader-ink) 22%, transparent); }
+#openLetter,
+#enableArrivalNotification { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 8px; padding: 0 20px; color: #fff !important; background: var(--notification-enabled-gradient, linear-gradient(125deg, #333, #666)) !important; border: 1px solid rgba(255,255,255,.32) !important; border-radius: 999px; box-shadow: 0 12px 28px color-mix(in srgb, var(--reader-ink) 22%, transparent); font-size: 11px; font-weight: 600 !important; line-height: 1; }
+#openLetter svg,
+#enableArrivalNotification svg { width: 18px; height: 18px; flex: none; }
 #enableArrivalNotification.is-enabled { border-color: rgba(255,255,255,.64) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--reader-ink) 24%, transparent), inset 0 1px 0 rgba(255,255,255,.32); }
 @media (prefers-reduced-motion: reduce) {
   .countdown-digit-track.is-rolling { transition: none; }

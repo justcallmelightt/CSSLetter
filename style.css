@@ -63,7 +63,8 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .account-lightframe-action { position: relative; z-index: 0; display: grid; margin-top: 4px; }
 .account-lightframe-action::before { position: absolute; z-index: -1; inset: -6px; border-radius: 18px; background: linear-gradient(90deg, #008469 0%, #064a9c 10%, #1600cf 22%, #7400f2 48%, #a810e8 65%, #ec58cd 79%, #f3a38e 90%, #f8e36d 100%); filter: blur(18px) saturate(1.22) brightness(1.08); opacity: 0; pointer-events: none; transform: scale(.97); transition: opacity 180ms ease, transform 220ms ease; content: ""; }
 .account-lightframe-toggle { position: relative; display: flex; width: 100%; min-height: 52px; align-items: center; justify-content: center; overflow: hidden; isolation: isolate; appearance: none; -webkit-appearance: none; padding: 14px 44px; border: 0; border-radius: 14px; background: linear-gradient(90deg, #008469 0%, #064a9c 10%, #1600cf 22%, #7400f2 48%, #a810e8 65%, #ec58cd 79%, #f3a38e 90%, #f8e36d 100%); background-clip: border-box; box-shadow: inset 0 0 0 1px rgba(255,255,255,.24); color: #faf9fc; font: inherit; cursor: pointer; transition: filter 160ms ease, box-shadow 160ms ease; }
-.account-lightframe-mark { display: inline-flex; width: 20px; height: 20px; flex: 0 0 20px; align-items: center; justify-content: center; margin-right: 8px; font-size: 18px; line-height: 1; }
+.account-lightframe-mark { display: inline-flex; width: 18px; height: 26px; flex: 0 0 18px; align-items: center; justify-content: center; margin: 0 8px 0 0; color: #fff; line-height: 1; }
+.account-lightframe-glyph { display: block; width: 18px; height: 26px; overflow: visible; }
 .account-lightframe-label { display: inline-flex; align-items: baseline; gap: 5px; }
 .account-lightframe-label strong { font-size: 1rem; font-weight: 650; letter-spacing: -.035em; line-height: 1.1; }
 .account-lightframe-label > span { color: #faf9fc; font-size: .79rem; font-weight: 500; line-height: 1.5; }

@@ -728,12 +728,6 @@ a:focus-visible {
 .link-setup[hidden], .link-result[hidden], .share-schedule-options[hidden] { display: none; }
 .link-setup > p:not(.eyebrow), .link-result > p:not(.eyebrow, .link-delivery-summary) { margin: 0 auto 22px; color: var(--muted); font-size: 11px; line-height: 1.65; }
 .delivery-choice { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 10px; }
-.future-letter-choice { position: relative; grid-template-columns: 20px minmax(0, 1fr); gap: 7px; padding: 9px 24px 9px 10px; }
-.future-letter-choice > span { display: grid; gap: 4px; }
-.future-letter-choice strong { font-size: 11px; }
-.future-letter-choice small { font-size: 9px; }
-.future-letter-choice .future-letter-check { position: absolute; top: 8px; right: 7px; width: 13px; height: 13px; opacity: 0; }
-.future-letter-choice[aria-pressed="true"] .future-letter-check { opacity: 1; }
 .delivery-choice-button { display: grid; min-height: 72px; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; padding: 10px 13px; color: var(--ink); text-align: left; background: rgba(255,255,255,.62); border: 1px solid var(--line); border-radius: 17px; box-shadow: inset 0 1px 0 rgba(255,255,255,.88); transition: transform 180ms var(--ease), border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; }
 .delivery-choice-button > svg { width: 20px; height: 20px; padding: 0; box-sizing: border-box; color: #111; background: transparent; border-radius: 0; transition: transform 180ms var(--ease); }
 .delivery-choice-button > span { display: grid; gap: 4px; }

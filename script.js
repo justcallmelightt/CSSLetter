@@ -324,7 +324,6 @@ function startFutureLetter() {
   state.unlockAt = null;
   applyState();
   saveDraft();
-  setDeliveryChoice("later");
   setSchedulePreset("1year");
 }
 
@@ -340,14 +339,16 @@ function setSchedulePreset(preset) {
 }
 
 function setDeliveryChoice(choice) {
-  deliveryChoice = choice === "later" ? "later" : "now";
+  deliveryChoice = ["now", "later", "future"].includes(choice) ? choice : "now";
+  if (deliveryChoice === "future" && !state.futureSelf) startFutureLetter();
+  if (deliveryChoice !== "future" && state.futureSelf) startFutureLetter();
   $$('[data-delivery-choice]').forEach((button) => {
     const selected = button.dataset.deliveryChoice === deliveryChoice;
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
-  $("#shareScheduleOptions").hidden = deliveryChoice !== "later";
-  if (deliveryChoice === "later") $("#shareUnlockAt").focus({ preventScroll: true });
+  $("#shareScheduleOptions").hidden = deliveryChoice === "now";
+  if (deliveryChoice !== "now") $("#shareUnlockAt").focus({ preventScroll: true });
 }
 
 function prepareDeliveryStep() {
@@ -356,7 +357,7 @@ function prepareDeliveryStep() {
   input.max = toLocalDateTimeValue(new Date(Date.now() + maxScheduleYears * 365 * 24 * 60 * 60 * 1000).toISOString());
   const hasFutureSchedule = state.unlockAt && Date.parse(state.unlockAt) > Date.now();
   input.value = toLocalDateTimeValue(hasFutureSchedule ? state.unlockAt : null);
-  setDeliveryChoice(hasFutureSchedule ? "later" : "now");
+  setDeliveryChoice(state.futureSelf ? "future" : hasFutureSchedule ? "later" : "now");
 }
 
 function syncCustomControls() {
@@ -637,11 +638,11 @@ async function finalizeShareLink() {
     return;
   }
   let safeUnlockAt = null;
-  if (deliveryChoice === "later") {
+  if (deliveryChoice !== "now") {
     const chosen = new Date($("#shareUnlockAt").value);
     safeUnlockAt = Number.isFinite(chosen.getTime()) ? cleanUnlockAt(chosen.toISOString()) : null;
   }
-  if (deliveryChoice === "later" && !safeUnlockAt) {
+  if (deliveryChoice !== "now" && !safeUnlockAt) {
     $("#shareUnlockAt").focus();
     return showToast(`공개 시각은 ${maxScheduleYears}년 안으로 선택해 주세요.`);
   }
@@ -842,7 +843,6 @@ function renderReader(letter) {
 
 function initEditor() {
   applyState();
-  $("#futureLetterStart").addEventListener("click", startFutureLetter);
   ["recipient", "letterTitle", "letterBody", "sender"].forEach((id) => {
     $(`#${id}`).addEventListener("input", (event) => {
       const key = id === "letterTitle" ? "title" : id === "letterBody" ? "body" : id;

@@ -49,11 +49,20 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 
 .studio-account { position: relative; isolation: isolate; width: min(460px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 38px; overflow: hidden auto; border: 1px solid rgba(17,24,39,.08); border-top-color: rgba(255,255,255,.9); border-radius: 28px; background: rgba(249,249,251,.9); color: var(--ink); box-shadow: 0 32px 90px rgba(15,23,42,.24), inset 0 1px 0 rgba(255,255,255,.96); backdrop-filter: blur(28px) saturate(1.2); -webkit-backdrop-filter: blur(28px) saturate(1.2); }
 .studio-account::backdrop { background: rgba(10,12,18,.44); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.studio-account[open] { animation: account-dialog-enter 320ms var(--ease) both; }
+.studio-account[open]::backdrop { animation: account-backdrop-enter 240ms ease-out both; }
+@keyframes account-dialog-enter { from { opacity: 0; transform: translateY(14px) scale(.98); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes account-backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .studio-account[open], .studio-account[open]::backdrop { animation-duration: 150ms; }
+  .studio-account[open] { animation-name: account-dialog-fade; }
+}
+@keyframes account-dialog-fade { from { opacity: 0; } to { opacity: 1; } }
 .account-close { position: absolute; top: 15px; right: 15px; z-index: 2; width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(229,229,232,.78); font-size: 21px; transition: background 150ms ease, transform 150ms var(--ease); }
 .account-close:hover { background: #dedee2; }
 .account-close:active { transform: scale(.92); transition-duration: 70ms; }
 .account-heading { position: relative; margin-bottom: 24px; }
-.studio-account h2 { margin-bottom: 12px; font-size: 30px; letter-spacing: -.045em; line-height: 1.08; }
+.studio-account h2 { margin-bottom: 5px; font-size: 30px; letter-spacing: -.045em; line-height: 1.08; }
 .account-description { margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
 #accountForm { display: grid; gap: 14px; }
 #accountForm label { display: grid; gap: 7px; color: #55555b; font-size: 13px; font-weight: 650; }
@@ -95,7 +104,7 @@ svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .studio-welcome.is-playing .welcome-progress i { animation: welcomeProgress var(--welcome-duration, 2600ms) linear forwards; animation-play-state: running; }
 .studio-welcome.is-paused .welcome-progress i { animation-play-state: paused; }
 #welcomeStep { color: #aaa; font-size: 13px; }
-.welcome-caption h2 { font-size: 25px; font-weight: 600; line-height: 1.15; letter-spacing: -.03em; margin: 14px 0; }
+.welcome-caption h2 { font-size: 25px; font-weight: 600; line-height: 1.15; letter-spacing: -.03em; margin: 14px 0 5px; }
 .welcome-caption p { font-size: 15px; line-height: 1.65; color: #ccc; }
 .welcome-caption nav { display: flex; justify-content: flex-end; gap: 8px; }
 .welcome-caption button { min-height: 44px; padding: 10px; border: 0; background: transparent; color: #bbb; font-size: 14px; }
@@ -741,8 +750,8 @@ a:focus-visible {
 .share-schedule-options label { color: var(--muted); font-size: 8px; font-weight: 720; }
 .share-schedule-options input { width: 100%; height: 44px; padding: 0 12px; color: var(--ink); background: #f4f4f6; border: 1px solid var(--line); border-radius: 12px; outline: 0; font: 620 10px Pretendard, sans-serif; color-scheme: light; }
 .share-schedule-options input:focus { border-color: rgba(17,24,39,.42); box-shadow: 0 0 0 3px rgba(17,24,39,.06); }
-.share-schedule-options p { display: flex; align-items: flex-start; gap: 5px; margin: 0; color: #929299; font-size: 8px; line-height: 1.5; }
-.share-schedule-options p svg { width: 11px; min-width: 11px; margin-top: 1px; }
+.share-schedule-options p { display: grid; grid-template-columns: 12px minmax(0, 1fr); align-items: start; gap: 6px; margin: 0; color: #929299; font-size: 8px; line-height: 1.5; }
+.share-schedule-options p svg { display: block; width: 12px; height: 12px; margin-top: 1px; }
 .finalize-link { display: flex; width: 100%; height: 48px; align-items: center; justify-content: center; gap: 9px; margin-top: 10px; color: #fff; background: #111; border: 0; border-radius: 14px; box-shadow: 0 13px 28px rgba(17,17,17,.19); font-size: 10px; font-weight: 400; transition: transform 180ms var(--ease), box-shadow 180ms ease; }
 .finalize-link svg { width: 15px; transition: transform 180ms var(--ease); }
 .finalize-link:hover { transform: translateY(-2px); box-shadow: 0 17px 34px rgba(17,17,17,.24); }
@@ -987,7 +996,8 @@ body { background: var(--bg); }
 .modal.is-open .modal-card { transform: translateY(0) scale(1); }
 .modal-close { width: 34px; height: 34px; }
 .link-card h2, .preview-card h2 { font-size: clamp(26px, 4vw, 30px); font-weight: 620; line-height: 1.14; letter-spacing: -.045em; }
-#linkTitle { margin: 0 0 12px; text-align: left; white-space: nowrap; font-size: clamp(21px, 2.65vw, 28px); }
+#linkTitle { margin: 0 0 5px; text-align: left; white-space: nowrap; font-size: clamp(21px, 2.65vw, 28px); }
+#linkResult > h2 { margin-bottom: 5px; }
 #linkSetup > p { margin-inline: 0 !important; text-align: left; }
 .link-setup > p:not(.eyebrow), .link-result > p:not(.eyebrow, .link-delivery-summary) { margin-bottom: 16px; font-size: 12px; }
 .delivery-choice { gap: 10px; margin: 4px 0 8px; }
@@ -1116,3 +1126,19 @@ body { background: var(--bg); }
   .countdown-roll { font-size: clamp(24px, 7.4vw, 32px); }
   .arrival-countdown > i { font-size: clamp(20px, 5.5vw, 24px); }
 }
+
+/* One-step typography lift, keeping the existing size and hierarchy. */
+body { font-weight: 500; }
+.brand-name, .tab.is-active, .recipient-field span, .sender-field span { font-weight: 700; }
+.progress, .header-action, .tab, .tools-entry, .account-entry,
+.color-field, .select-field, .range-field, .workbench-actions button,
+.link-field button, .link-actions button, .calendar-reminder > button { font-weight: 550; }
+.paper-option strong, .workbench-bar > div, .recipient-field, .sender-field,
+.delivery-choice-button strong, .calendar-reminder strong { font-weight: 600; }
+.workbench-bar small, .recipient-field input, .sender-field input,
+.paper-footer, .delivery-choice-button small, .schedule-presets button,
+#unlockAtLabel, .reader-header > span { font-weight: 500; }
+.title-field { font-weight: 630 !important; }
+.body-field { font-weight: 450 !important; }
+.link-card h2, .preview-card h2, .reader-locked > h1, .reader-arrival > h1 { font-weight: 670; }
+.finalize-link, .primary-action, .notification-action { font-weight: 550 !important; }

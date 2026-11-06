@@ -492,6 +492,7 @@ function renderReader(letter) {
 }
 
 function initEditor() {
+  document.body.classList.add("editor-motion-ready");
   applyState();
   ["recipient", "letterTitle", "letterBody", "sender"].forEach((id) => {
     $(`#${id}`).addEventListener("input", (event) => {

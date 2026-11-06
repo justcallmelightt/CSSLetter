@@ -1,6 +1,7 @@
 const idPattern = /^[A-Za-z0-9_-]{16}$/;
 const payloadPattern = /^[A-Za-z0-9_-]{40,24000}$/;
 const retentionSeconds = 60 * 60 * 24 * 90;
+export const config = { api: { bodyParser: { sizeLimit: "32kb" } } };
 
 function send(response, status, body) {
   response.status(status);
@@ -26,7 +27,8 @@ async function redis(command) {
 }
 
 function clientAddress(request) {
-  return String(request.headers["x-forwarded-for"] || request.socket?.remoteAddress || "unknown").split(",")[0].trim().slice(0, 80);
+  // Trust the platform-provided client address, not the client-controlled X-Forwarded-For chain.
+  return String(request.headers["x-real-ip"] || request.socket?.remoteAddress || "unknown").trim().slice(0, 80);
 }
 
 async function allowWrite(request) {

@@ -554,6 +554,21 @@ a:focus-visible {
   }
 }
 
+/* Give the editor and generated letter a restrained, continuous handoff. */
+@property --letter-size { syntax: "<length>"; inherits: true; initial-value: 18px; }
+@property --letter-leading { syntax: "<number>"; inherits: true; initial-value: 1.9; }
+@keyframes letter-editor-arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.editor-motion-ready .control-panel { animation: letter-editor-arrive 520ms cubic-bezier(.2,.75,.25,1) both; }
+.editor-motion-ready .workbench { animation: letter-editor-arrive 620ms cubic-bezier(.2,.75,.25,1) 90ms both; }
+.tab-panel.is-active { animation: letter-editor-arrive 300ms cubic-bezier(.2,.75,.25,1) both; }
+.letter-paper { transition: color 250ms ease, background-color 250ms ease, box-shadow 280ms ease, --letter-size 200ms ease, --letter-leading 200ms ease; }
+.letter-paper::after { transition: border-color 240ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .editor-motion-ready .control-panel, .editor-motion-ready .workbench, .tab-panel.is-active { animation: letter-editor-fade .15s ease-out both; }
+  .letter-paper { transition: color .15s ease, background-color .15s ease, opacity .15s ease; }
+  @keyframes letter-editor-fade { from { opacity: .6; } to { opacity: 1; } }
+}
+
 /* Receiver theme atmosphere */
 .reader {
   --reader-bg: #f5f5f7;

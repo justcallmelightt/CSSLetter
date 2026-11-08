@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 87" role="img" aria-label="CSSLetter envelope">
+    <rect width="128" height="87" rx="6" fill="#fffafc"/>
+    <path d="M0 0h128L64 52Z" fill="#f7d2e1"/>
+    <path d="M0 87 64 37l64 50Z" fill="#fff8fb"/>
+    <path d="M0 0 64 52 0 87Z" fill="#fffafd"/>
+    <path d="M128 0 64 52l64 35Z" fill="#fffafd"/>
+    <rect x="52" y="48" width="24" height="24" rx="7" fill="#b74870"/>
+    <path d="m64 65.8-5.5-5.3a3.45 3.45 0 0 1 4.9-4.85l.6.6.6-.6a3.45 3.45 0 0 1 4.9 4.85Z" fill="none" stroke="#fff" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

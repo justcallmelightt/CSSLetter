@@ -877,6 +877,9 @@ body { background: var(--bg); }
   -webkit-backdrop-filter: blur(22px) saturate(1.12);
 }
 .brand-name { font-size: 17px; font-weight: 650; letter-spacing: -.05em; }
+.brand .brand-name { color: #b74870; }
+.brand { gap: 12px; }
+.brand-mark { display: block; width: 48px; height: 34px; flex: 0 0 auto; object-fit: contain; filter: drop-shadow(0 0 7px rgba(218, 112, 153, .34)) drop-shadow(0 2px 5px rgba(155, 64, 105, .18)); }
 .progress { gap: 9px; color: #878b93; font-size: 10px; font-weight: 450; }
 .progress span { gap: 7px; transition: color 220ms ease; }
 .progress b {
